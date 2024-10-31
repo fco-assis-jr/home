@@ -15,7 +15,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/solicitados', App\Livewire\sugestoes\Solicitados::class)->name('sugestoes.solicitados');
         Route::get('/visualizar-pdf', [PDFController::class, 'visualizarPDF'])->name('sugestoes.visualizar-pdf');
 
-
     });
     Route::prefix('ocorrencias')->namespace('App\Livewire\ocorrencias')->group(function () {
 
