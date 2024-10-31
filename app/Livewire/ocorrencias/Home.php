@@ -94,6 +94,8 @@ class Home extends Component
         $this->filial = null;
         $this->observacoes = null;
         $this->files = null;
+        $this->search = null;
+        $this->func = [];
         $this->alert('success', 'Registro cadastrado com sucesso!');
     }
 
