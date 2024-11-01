@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Livewire\sugestoes\PDF\PDFController;
 
-
 Route::middleware(['auth'])->group(function () {
     Route::get('/index', App\Livewire\Index::class)->name('index');
     Route::get('/home', App\Livewire\Index::class)->name('home');
