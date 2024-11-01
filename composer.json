@@ -10,8 +10,6 @@
         "jantinnerezo/livewire-alert": "^3.0",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
-        "livewire/flux": "^1.0",
-        "livewire/flux-pro": "^1.0",
         "livewire/livewire": "^3.5",
         "yajra/laravel-oci8": "^11.6"
     },

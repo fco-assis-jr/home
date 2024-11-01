@@ -18,7 +18,6 @@
     <script src="https://code.jquery.com/jquery-3.7.1.slim.js" integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/main.css'])
-    @fluxStyles
 </head>
 <body>
 @csrf
@@ -27,7 +26,6 @@
         {{ $slot }}
     </div>
 </section>
-@fluxScripts
 <x-livewire-alert::scripts />
 </body>
 </html>
