@@ -16,9 +16,8 @@ Route::middleware(['auth'])->group(function () {
 
     });
     Route::prefix('ocorrencias')->namespace('App\Livewire\ocorrencias')->group(function () {
-
         Route::get('/home', App\Livewire\ocorrencias\Home::class)->name('ocorrencias.home');
-        Route::get('/ocorrencia', App\Livewire\ocorrencias\ocorrencias::class)->name('ocorrencias.ocorrencia');
+        Route::get('/ocorrencia', App\Livewire\ocorrencias\Ocorrencias::class)->name('ocorrencias.ocorrencia');
         Route::get('/tipos', App\Livewire\ocorrencias\Tipos::class)->name('tipos.ocorrencia');
 
     });
