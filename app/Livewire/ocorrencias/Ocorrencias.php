@@ -8,7 +8,7 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 use PDO;
 use Illuminate\Support\Facades\Crypt;
 
-class ocorrencias extends Component
+class Ocorrencias extends Component
 {
     use LivewireAlert;
     public $ocorrencias = [];
