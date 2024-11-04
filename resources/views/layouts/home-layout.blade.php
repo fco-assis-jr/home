@@ -41,10 +41,14 @@
 <div class="app-sidebar__overlay" data-toggle="sidebar"></div>
 <aside class="app-sidebar">
     <div class="app-sidebar__user">
-        <div class="d-grid align-items-center justify-center">
+        <img class="app-sidebar__user-avatar"
+             src="{{ Session::has('foto_usuario') ? Session::get('foto_usuario') : asset('images/user.png') }}"
+             alt="User Image">
+        <div>
             <p class="app-sidebar__user-name">{{ auth()->user()->usuariobd }}</p>
         </div>
     </div>
+
     <ul class="app-menu">
         @foreach(session('pccontro') as $contro)
             @if(in_array($contro->codrotina, [1444, 8177]))
@@ -60,10 +64,10 @@
         {{ $slot }}
     </div>
 </main>
-
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
 <script>
-        document.querySelector("html").classList.add('js');
-        document.addEventListener('livewire:init', () => {
+    document.querySelector("html").classList.add('js');
+    document.addEventListener('livewire:init', () => {
         Livewire.on('nome-preenchido', () => document.getElementById('quantidade').focus());
         Livewire.on('NovoItem', () => document.getElementById('codigo').focus());
         Livewire.on('ModalTableAvaliar', () => $('#ModalTableAvaliar').modal('show'));
@@ -72,10 +76,18 @@
         Livewire.on('ModalEditItem', () => $('#ModalEditItem').modal('show'));
         Livewire.on('closeModalEditItem', () => $('#ModalEditItem').modal('hide'));
         Livewire.on('abrir-nova-aba', data => window.open(data[0].url, '_blank'));
-        Livewire.on('AbrirModalEditar', () => {$('#exampleModalEditar').modal('show');});
-        Livewire.on('FecharModalEditar', () => {$('#exampleModalEditar').modal('hide');});
-        Livewire.on('FecharModalCadastro', () => {$('#exampleModal').modal('hide');});
-        Livewire.on('abrirModalOcorrencia', () => {$('#ModalOcorrencia').modal('show');});
+        Livewire.on('AbrirModalEditar', () => {
+            $('#exampleModalEditar').modal('show');
+        });
+        Livewire.on('FecharModalEditar', () => {
+            $('#exampleModalEditar').modal('hide');
+        });
+        Livewire.on('FecharModalCadastro', () => {
+            $('#exampleModal').modal('hide');
+        });
+        Livewire.on('abrirModalOcorrencia', () => {
+            $('#ModalOcorrencia').modal('show');
+        });
 
     });
 

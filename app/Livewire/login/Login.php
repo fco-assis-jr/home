@@ -42,6 +42,15 @@ class Login extends Component
 
                 // Atribuir permissões ao usuário
                 Session::put('pccontro', $permissoes);
+
+                // Busca Foto
+                $foto = $this->buscarFoto($user->matricula);
+
+                if ($foto->fotemp) {
+                    $fotoBase64 = 'data:image/jpeg;base64,' . base64_encode($foto->fotemp);
+                    Session::put('foto_usuario', $fotoBase64);
+                }
+
                 // Autenticar usuário
                 Auth::login($user, $this->remember);
 
@@ -68,6 +77,26 @@ class Login extends Component
             return null;
         }
     }
+
+    // Metodo para buscar a foto do usuário
+    private function buscarFoto($matricula)
+    {
+        try {
+             $sql = /** @lang text */'
+                    SELECT F.FOTEMP
+                    FROM R034FOT@DBLSENIOR F
+                    INNER JOIN PCEMPR P ON TO_CHAR(F.NUMCAD) = TO_CHAR(P.CHAPA_RM)
+                    WHERE P.MATRICULA = ?
+                ';
+             $foto = DB::connection('oracle')->selectOne($sql, [$matricula]);
+
+            return $foto;
+        } catch (Exception $e) {
+            $this->alertaErro('Erro ao buscar foto: ' . $e->getMessage());
+            return null;
+        }
+    }
+
 
     // Metodo para obter permissões do usuário
     private function getPermissoes(PCempr $user)
