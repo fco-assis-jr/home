@@ -6,35 +6,35 @@
         </div>
     </div>
 
-    <div class="container mt-4" wire:ignore>
-        <div class="row justify-content-center">
-            <div class="col-lg-12 col-md-12">
-                <div class="tile">
-                    <table class="table table-bordered table-hover" id="sampleTable">
-                        <thead>
-                        <tr class="text-center text-uppercase">
-                            <th>Usuario</th>
-                            <th>Filial</th>
-                            <th>Registro</th>
-                            <th>Data da Ocorrência</th>
-                            <th>Número da Transação</th>
-                            <th>Funcionário</th>
+    <div class="row justify-content-center">
+        <div class="container mt-4" wire:ignore>
+            <div class="tile">
+                <table class="table table-bordered table-hover" id="sampleTable">
+                    <thead>
+                    <tr class="text-center text-uppercase">
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Filial</th>
+                        <th>Registro</th>
+                        <th>Data da Ocorrência</th>
+                        <th>Número da Transação</th>
+                        <th>Funcionário</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($ocorrencias as $index => $item)
+                        <tr class="text-center cursor-pointer" wire:click="abrirModal({{ $item->id }})">
+                            <td class="text-center">{{ $item->id }}</td>
+                            <td class="text-center">{{ $item->nome_usuario }}</td>
+                            <td class="text-center">{{ $item->filial }}</td>
+                            <td class="text-center">{{ $item->tipo_registro }}</td>
+                            <td class="text-center">{{ $item->data }}</td>
+                            <td class="text-center">{{ $item->numero_transacao }}</td>
+                            <td class="text-center">{{ $item->nome_func }}</td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach ($ocorrencias as $index => $item)
-                            <tr class="text-center cursor-pointer" wire:click="abrirModal({{ $item->id }})">
-                                <td class="text-center">{{ $item->nome_usuario }}</td>
-                                <td class="text-center">{{ $item->filial }}</td>
-                                <td class="text-center">{{ $item->tipo_registro }}</td>
-                                <td class="text-center">{{ $item->data }}</td>
-                                <td class="text-center">{{ $item->numero_transacao }}</td>
-                                <td class="text-center">{{ $item->nome_func }}</td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                    @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div >

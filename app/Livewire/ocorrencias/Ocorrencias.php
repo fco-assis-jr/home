@@ -35,7 +35,7 @@ class Ocorrencias extends Component
              ON pc_usuario.matricula = ro.codusuario
          LEFT JOIN
              pcempr pc_func
-         ON pc_func.matricula = ro.codfunc');
+         ON pc_func.matricula = ro.codfunc order by ro.id desc');
     }
 
     public function abrirModal($id)

@@ -6,35 +6,33 @@
         </div>
     </div>
 
-    <div class="container mt-4" wire:ignore>
-        <div class="row justify-content-center">
-            <div class="col-md-12">
-                <div class="tile">
-                    <h3 class="tile-title">Tabela de Solicitações</h3>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover" id="sampleTable">
-                            <thead>
-                            <tr class="text-uppercase text-center">
-                                <th class="text-center">CODSUG</th>
-                                <th class="text-center">FUNCIONÁRIO</th>
-                                <th class="text-center">CODFILIAL</th>
-                                <th class="text-center">QT ITENS</th>
-                                <th class="text-center">DATA CRIAÇÃO</th>
+    <div class="row justify-content-center">
+        <div class="container mt-4" wire:ignore>
+            <div class="tile">
+                <h3 class="tile-title">Tabela de Solicitações</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="sampleTable">
+                        <thead>
+                        <tr class="text-uppercase text-center">
+                            <th class="text-center">CODSUG</th>
+                            <th class="text-center">FUNCIONÁRIO</th>
+                            <th class="text-center">CODFILIAL</th>
+                            <th class="text-center">QT ITENS</th>
+                            <th class="text-center">DATA CRIAÇÃO</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($itensc as $index => $item)
+                            <tr class="text-uppercase text-center align-middle cursor-pointer" wire:click="modalOpen({{$item->codsug}})">
+                                <td class="text-center">{{ $item->codsug }}</td>
+                                <td class="text-center">{{ $item->nome }}</td>
+                                <td class="text-center">{{ $item->codfilial }}</td>
+                                <td class="text-center">{{ $item->qtd_aguardando }}</td>
+                                <td class="text-center">{{ $item->data }}</td>
                             </tr>
-                            </thead>
-                            <tbody>
-                            @foreach ($itensc as $index => $item)
-                                <tr class="text-uppercase text-center align-middle cursor-pointer" wire:click="modalOpen({{$item->codsug}})">
-                                    <td class="text-center">{{ $item->codsug }}</td>
-                                    <td class="text-center">{{ $item->nome }}</td>
-                                    <td class="text-center">{{ $item->codfilial }}</td>
-                                    <td class="text-center">{{ $item->qtd_aguardando }}</td>
-                                    <td class="text-center">{{ $item->data }}</td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                        @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
