@@ -27,5 +27,6 @@ Route::get('/', App\Livewire\login\Login::class)->name('login');
 
 Route::get('/logout', function () {
     auth()->logout();
+    session()->flush();
     return redirect('/');
 })->name('logout');
