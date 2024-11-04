@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Exception;
+use function PHPUnit\Framework\isEmpty;
 
 class Login extends Component
 {
@@ -46,7 +47,7 @@ class Login extends Component
                 // Busca Foto
                 $foto = $this->buscarFoto($user->matricula);
 
-                if ($foto->fotemp) {
+                if (isset($foto->fotemp)) {
                     $fotoBase64 = 'data:image/jpeg;base64,' . base64_encode($foto->fotemp);
                     Session::put('foto_usuario', $fotoBase64);
                 }
@@ -85,14 +86,13 @@ class Login extends Component
              $sql = /** @lang text */'
                     SELECT F.FOTEMP
                     FROM R034FOT@DBLSENIOR F
-                    INNER JOIN PCEMPR P ON TO_CHAR(F.NUMCAD) = TO_CHAR(P.CHAPA_RM)
+                    INNER JOIN PCEMPR P ON TO_NUMBER (F.NUMCAD) = TO_NUMBER (P.CHAPA_RM)
                     WHERE P.MATRICULA = ?
                 ';
              $foto = DB::connection('oracle')->selectOne($sql, [$matricula]);
 
             return $foto;
         } catch (Exception $e) {
-            $this->alertaErro('Erro ao buscar foto: ' . $e->getMessage());
             return null;
         }
     }
