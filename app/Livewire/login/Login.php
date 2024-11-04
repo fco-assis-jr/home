@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Exception;
-use function PHPUnit\Framework\isEmpty;
 
 class Login extends Component
 {
