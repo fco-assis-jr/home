@@ -13,7 +13,15 @@
  * Copyright 2011-2023 The Bootstrap Authors
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
-
+.spin {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+    }
+/* Definição da animação de rotação */
+@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+}
 /* Primary Button */
 .t-btn-primary {
     @apply cursor-pointer whitespace-nowrap rounded-md bg-sky-900 px-4 py-2 text-sm font-medium tracking-wide text-white transition hover:opacity-75 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-900 active:opacity-100 active:outline-offset-0 disabled:opacity-75 disabled:cursor-not-allowed dark:bg-sky-400 dark:text-white dark:focus-visible:outline-sky-400;
