@@ -70,6 +70,7 @@ class Login extends Component
             return DB::connection('oracle')
                 ->table('pcempr')
                 ->where('usuariobd', strtoupper($this->loginName))
+                ->where('situacao' , 'A')
                 ->whereRaw("decrypt(senhabd, usuariobd) = ?", [strtoupper($this->password)])
                 ->first();
         } catch (Exception $e) {
@@ -104,7 +105,7 @@ class Login extends Component
             $permissoes = DB::connection('oracle')
                 ->table('pccontro')
                 ->where('codusuario', $user->matricula)
-                ->whereIn('codrotina', [1444, 8177])
+                ->whereIn('codrotina',[1444,8177])
                 ->where('ACESSO', 'S')
                 ->get();
 

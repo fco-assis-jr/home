@@ -30,8 +30,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="mb-3 btn-container d-grid">
-                    <button class="btn btn-danger btn-block"><i class="bi bi-box-arrow-in-right me-2 fs-5"></i>ENTRAR</button>
+               <div class="mb-3 btn-container d-grid">
+                    <button class="btn btn-danger btn-block" type="submit">
+                        <span wire:loading.remove>
+                            <i class="bi bi-box-arrow-in-right me-2 fs-5"></i>ENTRAR
+                        </span>
+                        <span wire:loading>
+                            <i class="bi bi-arrow-clockwise me-2 fs-5 spin"></i>Carregando...
+                        </span>
+                    </button>
                     {{ session('error') }}
                 </div>
             </form>
