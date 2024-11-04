@@ -125,6 +125,7 @@
     }
 
     $('#sampleTable').DataTable({
+        order: [[0, 'desc']],
         language: {
             "sEmptyTable": "Nenhum dado disponível na tabela",
             "sInfo": "Mostrando _START_ até _END_ de _TOTAL_ entradas",
