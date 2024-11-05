@@ -76,19 +76,13 @@
         Livewire.on('ModalEditItem', () => $('#ModalEditItem').modal('show'));
         Livewire.on('closeModalEditItem', () => $('#ModalEditItem').modal('hide'));
         Livewire.on('abrir-nova-aba', data => window.open(data[0].url, '_blank'));
-        Livewire.on('AbrirModalEditar', () => {
-            $('#exampleModalEditar').modal('show');
-        });
-        Livewire.on('FecharModalEditar', () => {
-            $('#exampleModalEditar').modal('hide');
-        });
-        Livewire.on('FecharModalCadastro', () => {
-            $('#exampleModal').modal('hide');
-        });
-        Livewire.on('abrirModalOcorrencia', () => {
-            $('#ModalOcorrencia').modal('show');
-        });
-
+        Livewire.on('AbrirModalEditar', () => {$('#exampleModalEditar').modal('show');});
+        Livewire.on('FecharModalEditar', () => {$('#exampleModalEditar').modal('hide');});
+        Livewire.on('FecharModalCadastro', () => {$('#exampleModal').modal('hide');});
+        Livewire.on('abrirModalOcorrencia', () => {$('#ModalOcorrencia').modal('show');});
+        Livewire.on('OpenDuplicarModal', () => {$('#ModalDuplicarOcorrencia').modal('show');});
+        Livewire.on('FecharDuplicarModal', () => {$('#ModalOcorrencia').hide('show');});
+        Livewire.on('FecharModalOcorrencia', () => {$('#ModalDuplicarOcorrencia').hide('show');});
     });
 
     function formatarMoeda(input) {
