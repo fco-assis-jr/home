@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    @livewireStyles
     <title>{{ env('NOME_EMPRESA', 'Nome da Empresa') }}</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,9 +12,13 @@
     <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
             integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/js/dataTables.min.js">
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="app sidebar-mini" x-data="{ open: true }" :class="open ? '' : 'sidenav-toggled'">
+@livewireScripts
 <!-- Navbar -->
 <header class="app-header">
     <a class="app-header__logo" href="/home" style="font-family: 'Arial Black', serif; font-size: 18px;">
@@ -64,7 +69,6 @@
         {{ $slot }}
     </div>
 </main>
-<script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
 <script>
     document.querySelector("html").classList.add('js');
     document.addEventListener('livewire:init', () => {
@@ -76,18 +80,10 @@
         Livewire.on('ModalEditItem', () => $('#ModalEditItem').modal('show'));
         Livewire.on('closeModalEditItem', () => $('#ModalEditItem').modal('hide'));
         Livewire.on('abrir-nova-aba', data => window.open(data[0].url, '_blank'));
-        Livewire.on('AbrirModalEditar', () => {
-            $('#exampleModalEditar').modal('show');
-        });
-        Livewire.on('FecharModalEditar', () => {
-            $('#exampleModalEditar').modal('hide');
-        });
-        Livewire.on('FecharModalCadastro', () => {
-            $('#exampleModal').modal('hide');
-        });
-        Livewire.on('abrirModalOcorrencia', () => {
-            $('#ModalOcorrencia').modal('show');
-        });
+        Livewire.on('AbrirModalEditar', () => {$('#exampleModalEditar').modal('show');});
+        Livewire.on('FecharModalEditar', () => {$('#exampleModalEditar').modal('hide');});
+        Livewire.on('FecharModalCadastro', () => {$('#exampleModal').modal('hide');});
+        Livewire.on('abrirModalOcorrencia', () => {$('#ModalOcorrencia').modal('show');});
 
     });
 
