@@ -55,7 +55,7 @@ class Index extends Component
             foreach ($registros as &$registro) {
 
                 $sql = DB::connection('oracle')->select(/** @lang text */ '
-            SELECT CODFUNC, COUNT(*) AS QUANTIDADE_OCORRENCIAS
+            SELECT CODFUNC,(select usuariobd from pcempr where matricula=codfunc) as fullname, COUNT(*) AS QUANTIDADE_OCORRENCIAS
             FROM BDC_REGISTROS_OCORRENCIAS@DBL200
             WHERE TIPO_REGISTRO = ? AND FILIAL = ?
             GROUP BY CODFUNC
@@ -65,7 +65,8 @@ class Index extends Component
                 $registro['employees'] = array_map(function ($row) {
                     return [
                         'name' => $row->codfunc,
-                        'value' => $row->quantidade_ocorrencias
+                        'value' => $row->quantidade_ocorrencias,
+                        'fullName'=> $row->fullname,
                     ];
                 }, $sql);
 
