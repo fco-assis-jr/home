@@ -84,7 +84,9 @@
         Livewire.on('FecharModalEditar', () => {$('#exampleModalEditar').modal('hide');});
         Livewire.on('FecharModalCadastro', () => {$('#exampleModal').modal('hide');});
         Livewire.on('abrirModalOcorrencia', () => {$('#ModalOcorrencia').modal('show');});
-
+        Livewire.on('OpenDuplicarModal', () => {$('#ModalDuplicarOcorrencia').modal('show');});
+        Livewire.on('FecharDuplicarModal', () => {$('#ModalOcorrencia').hide('show');});
+        Livewire.on('FecharModalOcorrencia', () => {$('#ModalDuplicarOcorrencia').hide('show');});
     });
 
     function formatarMoeda(input) {
