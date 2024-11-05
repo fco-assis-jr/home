@@ -75,11 +75,72 @@
                         </div>
                     @endif
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer flex justify-content-between">
+                    <button type="button" class="btn btn-info" wire:click="OpenDuplicarModal">Duplicar</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal Duplicar Ocorrencia -->
+    <div class="modal fade" id="ModalDuplicarOcorrencia" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Duplicar Ocorrência</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Selecione a ocorrência para ser duplicada</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <div class="col-md mb-3">
+                                                    <label for="nome">Tipo de Ocorrência</label>
+                                                    <select class="form-select" id="exampleFormControlSelect1" wire:model="duplicTipo">
+                                                        <option value="">Selecione um tipo de ocorrência</option>
+                                                        @foreach ($tipo_registro as $index => $item)
+                                                            <option value="{{ $item->codtipo }}">{{ $item->descricao }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md mb-3">
+                                                    <label for="nome">Funcionário</label>
+                                                    <input type="text" class="form-control" wire:model="search" wire:input="matriculas" autocomplete="off">
+                                                    <ul class="list-group mt-2 position-absolute z-40">
+                                                        @foreach ($func as $index => $item)
+                                                            <li class="list-group-item cursor-pointer hover:bg-gray-200 rounded-md p-2" wire:click="selectUser('{{ $item->nome }}', {{ $item->matricula }})">
+                                                                {{ $item->nome }}
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md mb-3">
+                                                    <label for="ocorrencia">Descrição da Ocorrência</label>
+                                                    <textarea class="form-control" rows="10" id="ocorrencia" wire:model="duplicDescricao"></textarea>
+                                                </div>
+                                                <div class="modal-footer flex justify-content-between">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                                    <button type="button" class="btn btn-secondary" wire:click="cadastrar">Enviar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 </div>
