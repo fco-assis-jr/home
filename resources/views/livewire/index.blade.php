@@ -36,7 +36,7 @@
             <h3 id="currentSelection" style="text-align: center; margin-top: 10px;">Tipos de Ocorrências</h3>
 
             <!-- Botão "home" que só aparece ao sair do gráfico inicial -->
-            <button id="homeButton" onclick="voltarAoGraficoAnterior()" style="display: none; margin: 10px 0;">Home
+            <button id="homeButton" onclick="voltarAoGraficoAnterior()" style="display: none; margin: 10px 0;">Voltar
             </button>
 
             <!-- Container do gráfico -->
