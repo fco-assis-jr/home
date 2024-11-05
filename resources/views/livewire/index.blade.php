@@ -1,10 +1,9 @@
-<div>
+<div> <!-- Elemento raiz que envolve todo o conteúdo do componente Livewire -->
     <div class="app-title">
-        <div>
-            <h1><i class="bi bi-speedometer"></i> Dashboard</h1>
-            <p>Resumo das Rotinas</p>
-        </div>
+        <h1><i class="bi bi-speedometer"></i> Dashboard</h1>
+        <p>Resumo das Ocorrências</p>
     </div>
+
     <div class="row">
         @foreach(session('pccontro') as $pccontro)
             @if($pccontro->codrotina == 1444)
@@ -30,177 +29,157 @@
         @endforeach
     </div>
 
-    <!-- Gráfico de Tipos de Ocorrências -->
+    <!-- Gráfico de Pizza para Tipos de Ocorrências -->
     <div class="col-md-6">
         <div class="tile">
-            <!-- Título dinâmico que será atualizado conforme os gráficos -->
+            <!-- Título dinâmico para os gráficos -->
             <h3 id="currentSelection" style="text-align: center; margin-top: 10px;">Tipos de Ocorrências</h3>
 
             <!-- Botão "home" que só aparece ao sair do gráfico inicial -->
-            <button id="homeButton" onclick="voltarAoGraficoInicial()" style="display: none; margin: 10px 0;">home</button>
+            <button id="homeButton" onclick="voltarAoGraficoAnterior()" style="display: none; margin: 10px 0;">Home
+            </button>
 
-            <div class="ratio ratio-16x9">
-                <div id="graficoInicial" style="height: 120%;"></div>
-            </div>
+            <!-- Container do gráfico -->
+            <div id="graficoInicial" style="height: 400px;"></div>
         </div>
     </div>
+</div> <!-- Fim do elemento raiz -->
 
-    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<!-- Importa a biblioteca do ECharts -->
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 
-    <script>
-        let chart;
+<script>
+    let chart;
+    const occurrenceTypesData = @json($jsonOcorrencias); // Dados dos tipos de ocorrência
+    const detailedData = @json($jsonOcorrenciasFilial);  // Dados detalhados por filial e funcionário
 
-        // Dados JSON dinâmico carregados no JavaScript
-        const occurrenceTypesData = @json($jsonOcorrencias); // Mostra todos os tipos de ocorrência
-        const detailedData = @json($jsonOcorrenciasFilial);  // Dados detalhados para cada tipo de ocorrência, filial e funcionário
+    const graficoElement = document.getElementById('graficoInicial');
+    const homeButton = document.getElementById('homeButton');
+    const currentSelection = document.getElementById('currentSelection');
 
-        // Elemento para exibir o tipo de ocorrência ou filial selecionado
-        const currentSelection = document.getElementById('currentSelection');
+    // Pilha para armazenar o histórico de navegação
+    const navigationStack = [];
 
-        // Configuração do gráfico inicial (Todos os Tipos de Ocorrência)
-        const allTypesChartOptions = {
-            tooltip: {
-                trigger: 'item',
-                formatter: '{b}: {c} ({d}%)'
-            },
-            legend: {
-                orient: 'vertical',
-                left: 'left'
-            },
-            series: [
-                {
+    if (graficoElement && !chart) {
+        chart = echarts.init(graficoElement);
+
+        function setupAllTypesChart() {
+            const pieChartOptions = {
+                tooltip: {trigger: 'item', formatter: '{b}: {c} ({d}%)'},
+                legend: {orient: 'vertical', left: 'left'},
+                series: [{
                     name: 'Tipos de Ocorrências',
                     type: 'pie',
                     radius: '50%',
                     data: occurrenceTypesData,
-                    emphasis: {
-                        itemStyle: {
-                            shadowBlur: 10,
-                            shadowOffsetX: 0,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
-                        }
-                    }
-                }
-            ]
-        };
+                    label: {
+                        formatter: '{b}: {d}%',  // Exibe o nome e a porcentagem na label
+                        fontSize: 10
+                    },
+                    labelLine: {length: 10, length2: 10, smooth: true}
+                }]
+            };
+            chart.setOption(pieChartOptions);
+            currentSelection.innerText = "Tipos de Ocorrências";
+            homeButton.style.display = 'none'; // Esconde o botão "Voltar" na tela principal
+            chart.off('click');
+            chart.on('click', handleTypeClick);
+        }
 
-        const graficoElement = document.getElementById('graficoInicial');
-        const homeButton = document.getElementById('homeButton'); // Referência ao botão "home"
+        function handleTypeClick(params) {
+            const tipoOcorrencia = params.name;
+            if (detailedData[tipoOcorrencia]) {
+                // Salva o estado atual na pilha antes de mudar para o próximo
+                navigationStack.push(setupAllTypesChart);
 
-        if (graficoElement && !chart) { // Garante que o gráfico é inicializado apenas uma vez
-            chart = echarts.init(graficoElement);
+                currentSelection.innerText = `Ocorrências por Filial - ${tipoOcorrencia}`;
+                homeButton.style.display = 'inline-block';
 
-            // Função para configurar o gráfico inicial com o evento de drill-down para filiais
-            function setupAllTypesChart() {
-                chart.setOption(allTypesChartOptions);
-                currentSelection.innerText = "Tipos de Ocorrências"; // Reseta o título ao inicializar o gráfico
-                console.log("Gráfico inicial de todos os tipos de ocorrência inicializado.");
+                const filiaisData = detailedData[tipoOcorrencia].map(filial => ({
+                    name: filial.name,
+                    value: filial.value
+                }));
 
-                // Configura o evento de clique para o drill-down do gráfico de filiais
-                chart.off('click'); // Limpa qualquer evento de clique anterior
-                chart.on('click', function (params) {
-                    const tipoOcorrencia = params.name;
-                    console.log("Tipo de Ocorrência clicado:", tipoOcorrencia);
+                const barStackedOptions = {
+                    tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
+                    legend: {data: [tipoOcorrencia]},
+                    xAxis: {type: 'category', data: filiaisData.map(f => `Filial ${f.name}`)},
+                    yAxis: {type: 'value'},
+                    series: [{
+                        name: tipoOcorrencia,
+                        type: 'bar',
+                        stack: 'total',
+                        label: {show: true, formatter: '{c}'}, // Exibe apenas o valor
+                        data: filiaisData.map(f => f.value)
+                    }]
+                };
 
-                    if (detailedData[tipoOcorrencia]) {
-                        currentSelection.innerText = `Tipo de Ocorrência: ${tipoOcorrencia}`; // Atualiza o título com o tipo de ocorrência
-                        homeButton.style.display = 'inline-block';
+                chart.setOption(barStackedOptions);
+                chart.off('click');
+                chart.on('click', (filialParams) => handleFilialClick(filialParams, tipoOcorrencia));
+            }
+        }
 
-                        const filiaisData = detailedData[tipoOcorrencia].map(filial => {
-                            return {
-                                name: filial.name,
-                                value: parseInt(filial.value)
-                            };
-                        });
+        function handleFilialClick(filialParams, tipoOcorrencia) {
+            // Remove o prefixo "Filial" para obter apenas o número da filial
+            const filialName = filialParams.name.replace("Filial ", "").trim();
+            const filialData = detailedData[tipoOcorrencia].find(filial => filial.name === filialName);
 
-                        const filialChartOptions = {
-                            tooltip: {
-                                trigger: 'item',
-                                formatter: '{b}: {c} ({d}%)'
-                            },
-                            legend: {
-                                orient: 'vertical',
-                                left: 'left'
-                            },
-                            series: [
-                                {
-                                    name: `Ocorrências por Filial - ${tipoOcorrencia}`,
-                                    type: 'pie',
-                                    radius: '50%',
-                                    data: filiaisData,
-                                    emphasis: {
-                                        itemStyle: {
-                                            shadowBlur: 10,
-                                            shadowOffsetX: 0,
-                                            shadowColor: 'rgba(0, 0, 0, 0.5)'
-                                        }
-                                    }
-                                }
-                            ]
-                        };
+            if (filialData && filialData.employees) {
+                // Salva o estado atual na pilha antes de mudar para o próximo
+                navigationStack.push(() => handleTypeClick({name: tipoOcorrencia}));
 
-                        chart.setOption(filialChartOptions);
-                        console.log("Drill-down para gráfico de filiais.");
+                currentSelection.innerText = `Funcionários na Filial ${filialName} - ${tipoOcorrencia}`;
 
-                        // Configura evento de clique para drill-down dos funcionários dentro da filial
-                        chart.off('click');
-                        chart.on('click', function (filialParams) {
-                            const filialName = filialParams.name;
-                            const filialData = detailedData[tipoOcorrencia].find(filial => filial.name === filialName);
-
-                            if (filialData && filialData.employees) {
-                                currentSelection.innerText = `Filial: ${filialName} - ${tipoOcorrencia}`; // Atualiza o título com a filial e o tipo de ocorrência
-
-                                const employeeChartOptions = {
-                                    tooltip: {
-                                        trigger: 'axis',
-                                        axisPointer: { type: 'shadow' }
-                                    },
-                                    xAxis: {
-                                        type: 'category',
-                                        data: filialData.employees.map(emp => emp.name)
-                                    },
-                                    yAxis: {
-                                        type: 'value'
-                                    },
-                                    series: [
-                                        {
-                                            name: 'Ocorrências por Funcionário',
-                                            type: 'bar',
-                                            data: filialData.employees.map(emp => parseInt(emp.value))
-                                        }
-                                    ]
-                                };
-
-                                chart.setOption(employeeChartOptions);
-                                console.log("Drill-down para gráfico de funcionários.");
-                            } else {
-                                console.warn("Dados de funcionários não encontrados para a filial:", filialName);
+                const employeeBarOptions = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {type: 'shadow'},
+                        formatter: '{b}: {c}' // Exibe apenas o nome e o valor no tooltip
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: filialData.employees.map(emp => `${emp.name} - ${emp.fullName}`),
+                        axisLabel: {
+                            rotate: 0,
+                            fontSize: 10,
+                            overflow: 'truncate',
+                            interval: 0,
+                            formatter: function (value) {
+                                return value.length > 10 ? value.substring(0, 10) + '...' : value;
                             }
-                        });
-                    } else {
-                        console.warn("Dados detalhados não encontrados para o tipo de ocorrência:", tipoOcorrencia);
-                    }
-                });
-            }
+                        }
+                    },
+                    yAxis: {type: 'value'},
+                    grid: {bottom: 100},
+                    series: [{
+                        name: 'Ocorrências por Funcionário',
+                        type: 'bar',
+                        label: {show: true, formatter: '{c}'}, // Exibe apenas o valor
+                        data: filialData.employees.map(emp => emp.value)
+                    }]
+                };
 
-            // Inicializa o gráfico inicial pela primeira vez
-            setupAllTypesChart();
-        } else {
-            console.error("Elemento 'graficoInicial' não encontrado ou gráfico já inicializado.");
-        }
-
-        // Função para voltar ao gráfico inicial de tipos de ocorrência
-        function voltarAoGraficoInicial() {
-            if (chart) {
-                chart.clear(); // Limpa o gráfico atual
-                setupAllTypesChart(); // Redefine o gráfico para o gráfico inicial de tipos de ocorrência
-                homeButton.style.display = 'none'; // Oculta o botão "home"
-                currentSelection.innerText = "Tipos de Ocorrências"; // Reseta o título ao voltar para o gráfico inicial
-                console.log("Retornando ao gráfico inicial de tipos de ocorrência.");
+                chart.setOption(employeeBarOptions);
+                chart.off('click'); // Desativa o clique adicional neste nível
             } else {
-                console.error("Erro: o gráfico não está inicializado.");
+                console.warn("Dados de funcionários não encontrados para a filial:", filialName);
             }
         }
-    </script>
-</div>
+
+        function voltarAoGraficoAnterior() {
+            if (navigationStack.length > 0) {
+                const previousChartSetup = navigationStack.pop(); // Pega o estado anterior da pilha
+                chart.clear();
+                previousChartSetup(); // Volta para o gráfico anterior
+                if (navigationStack.length === 0) {
+                    homeButton.style.display = 'none'; // Esconde o botão "Voltar" se estiver na tela inicial
+                    currentSelection.innerText = "Tipos de Ocorrências";
+                }
+            }
+        }
+
+        // Inicia o gráfico principal
+        setupAllTypesChart();
+    }
+</script>
