@@ -128,7 +128,11 @@
                                                 </div>
                                                 <div class="modal-footer flex justify-content-between">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                                    <button type="button" class="btn btn-secondary" wire:click="cadastrar">Enviar</button>
+                                                    <button type="button" id="span-loading" class="btn btn-secondary" wire:click="cadastrar" onclick="spanLoadingHome();">Enviar</button>
+                                                    <button class="btn btn-secondary" type="button" disabled id="button-loading" style="display: none;">
+                                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                        <span class=""> Enviando</span>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
