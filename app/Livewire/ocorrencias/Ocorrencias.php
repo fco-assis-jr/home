@@ -125,6 +125,12 @@ class Ocorrencias extends Component
             $data_criacao = $this->ModalOcorrencia[0]->data_criacao;
             $id = $this->ModalOcorrencia[0]->id;
 
+            //validar os dados para não enviar vazio
+            if (empty($matricula) || empty($tipo_ocorrencia) || empty($descricao)) {
+                $this->alert('error', 'Preencha todos os campos!');
+                return;
+            }
+
             $result = DB::connection('oracle')->select('select matricula from pcempr where matricula = ?', [$matricula]);
             if (empty($result)) {
                 $this->alert('error', 'Matrícula do funcionário não encontrado!');
