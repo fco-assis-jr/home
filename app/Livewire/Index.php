@@ -10,8 +10,7 @@ class Index extends Component
 {
     public $qtsugestoes;
     public $qtocorrencias;
-    public $jsonOcorrencias = [];
-    public $formattedData = [];
+    public $jsonOcorrenciasFilial = [];
 
     use LivewireAlert;
 
@@ -19,13 +18,12 @@ class Index extends Component
     {
         $this->qtsugestoes = $this->countSugestoes();
         $this->qtocorrencias = $this->countOcorrencias();
-        $this->jsonOcorrencias = $this->graficoOcorrencias();
-        $this->formattedData = $this->graficoOcorrenciasFilial();
+        $this->jsonOcorrenciasFilial = $this->graficoOcorrenciasFilial();
     }
 
-public function graficoOcorrenciasFilial()
-{
-    $registros = DB::connection('oracle')->select(/** @lang text */ '
+    public function graficoOcorrenciasFilial()
+    {
+        $registros = DB::connection('oracle')->select(/** @lang text */ '
         SELECT FILIAL AS FILIAL,
                (SELECT DESCRICAO
                 FROM BDC_REGISTROS_TIPOS@DBL200
@@ -36,47 +34,24 @@ public function graficoOcorrenciasFilial()
         ORDER BY FILIAL, TIPO_REGISTRO
     ');
 
-    $formattedData = [];
+        $jsonOcorrenciasFilial = [];
 
-    foreach ($registros as $registro) {
-        $filial = $registro->filial;
-        $tipoRegistro = $registro->tipo_registro;
-        $quantidade = $registro->quantidade;
+        foreach ($registros as $registro) {
+            $filial = $registro->filial;
+            $tipoRegistro = $registro->tipo_registro;
+            $quantidade = $registro->quantidade;
 
-        if (!isset($formattedData[$filial])) {
-            $formattedData[$filial] = [];
+            if (!isset($jsonOcorrenciasFilial[$filial])) {
+                $jsonOcorrenciasFilial[$filial] = [];
+            }
+
+            $jsonOcorrenciasFilial[$filial][] = [
+                'name' => $tipoRegistro,
+                'value' => $quantidade,
+            ];
         }
 
-        $formattedData[$filial][] = [
-            'name' => $tipoRegistro,
-            'value' => $quantidade,
-        ];
-    }
-
-    return $formattedData;
-}
-
-    public function graficoOcorrencias()
-    {
-        $data = DB::connection('oracle')->select(query: /** @lang text */ '
-                    SELECT (SELECT DESCRICAO
-                    FROM BDC_REGISTROS_TIPOS@DBL200
-                    WHERE CODTIPO = TIPO_REGISTRO) AS NAME,
-                    COUNT (*) AS VALUE,
-                    ROUND (
-                       (  COUNT (*)
-                        * 100.0
-                        / (SELECT COUNT (*) FROM BDC_REGISTROS_OCORRENCIAS@DBL200))) AS PORCENTAGEM
-                    FROM BDC_REGISTROS_OCORRENCIAS@DBL200
-                    GROUP BY TIPO_REGISTRO
-                    ');
-
-        return array_map(function ($item) {
-            return [
-                'name' => $item->name,
-                'value' => $item->value,
-            ];
-        }, $data);
+        return $jsonOcorrenciasFilial;
     }
 
     public function countSugestoes()
