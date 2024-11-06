@@ -11,7 +11,7 @@ class Index extends Component
     public $qtsugestoes;
     public $qtocorrencias;
     public $jsonOcorrencias = [];
-    public $jsonOcorrenciasFilial = [];
+    public $formattedData = [];
 
     use LivewireAlert;
 
@@ -20,61 +20,41 @@ class Index extends Component
         $this->qtsugestoes = $this->countSugestoes();
         $this->qtocorrencias = $this->countOcorrencias();
         $this->jsonOcorrencias = $this->graficoOcorrencias();
-        $this->jsonOcorrenciasFilial = $this->graficoOcorrenciasFilial();
+        $this->formattedData = $this->graficoOcorrenciasFilial();
     }
 
-    public function graficoOcorrenciasFilial()
-    {
-        $registros = DB::connection('oracle')->select(/** @lang text */ 'SELECT (SELECT DESCRICAO
-                    FROM BDC_REGISTROS_TIPOS@DBL200
-                    WHERE CODTIPO = TIPO_REGISTRO) AS TIPO_REGISTRO,
-                    FILIAL,
-                    COUNT (*) AS QTD_REGISTROS,tipo_registro as codtipo
-                    FROM BDC_REGISTROS_OCORRENCIAS@DBL200
-                    GROUP BY TIPO_REGISTRO, FILIAL
-                    ORDER BY FILIAL, TIPO_REGISTRO');
+public function graficoOcorrenciasFilial()
+{
+    $registros = DB::connection('oracle')->select(/** @lang text */ '
+        SELECT FILIAL AS FILIAL,
+               (SELECT DESCRICAO
+                FROM BDC_REGISTROS_TIPOS@DBL200
+                WHERE CODTIPO = TIPO_REGISTRO) AS TIPO_REGISTRO,
+               COUNT(*) AS QUANTIDADE
+        FROM BDC_REGISTROS_OCORRENCIAS@DBL200
+        GROUP BY FILIAL, TIPO_REGISTRO
+        ORDER BY FILIAL, TIPO_REGISTRO
+    ');
 
-        foreach ($registros as $registro) {
-            $tipo = $registro->tipo_registro;
-            $codtipo = $registro->codtipo;
-            $filial = $registro->filial;
-            $quantidade = $registro->qtd_registros;
+    $formattedData = [];
 
-            if (!isset($resultado[$tipo])) {
-                $resultado[$tipo] = [];
-            }
+    foreach ($registros as $registro) {
+        $filial = $registro->filial;
+        $tipoRegistro = $registro->tipo_registro;
+        $quantidade = $registro->quantidade;
 
-            $resultado[$tipo][] = [
-                'name' => (string)$filial,
-                'value' => $quantidade,
-                'tipo' => $codtipo,
-                'employees' => [],
-            ];
-        }
-        foreach ($resultado as $tipo => &$registros) {
-            foreach ($registros as &$registro) {
-
-                $sql = DB::connection('oracle')->select(/** @lang text */ '
-            SELECT CODFUNC,(select usuariobd from pcempr where matricula=codfunc) as fullname, COUNT(*) AS QUANTIDADE_OCORRENCIAS
-            FROM BDC_REGISTROS_OCORRENCIAS@DBL200
-            WHERE TIPO_REGISTRO = ? AND FILIAL = ?
-            GROUP BY CODFUNC
-            ORDER BY QUANTIDADE_OCORRENCIAS DESC', [$registro['tipo'], $registro['name']]);
-
-
-                $registro['employees'] = array_map(function ($row) {
-                    return [
-                        'name' => $row->codfunc,
-                        'value' => $row->quantidade_ocorrencias,
-                        'fullName'=> $row->fullname,
-                    ];
-                }, $sql);
-
-            }
+        if (!isset($formattedData[$filial])) {
+            $formattedData[$filial] = [];
         }
 
-        return $resultado;
+        $formattedData[$filial][] = [
+            'name' => $tipoRegistro,
+            'value' => $quantidade,
+        ];
     }
+
+    return $formattedData;
+}
 
     public function graficoOcorrencias()
     {
