@@ -40,7 +40,7 @@
                 <label for="filialSelect">Selecionar Filial:</label>
                 <select id="filialSelect" onchange="atualizarGraficoPorFilial()" style="margin-left: 5px;">
                     <option value="">Todas as Filiais</option>
-                    @foreach(array_keys($formattedData) as $filial)
+                    @foreach(array_keys($jsonOcorrenciasFilial) as $filial)
                         <option value="{{ $filial }}">Filial {{ $filial }}</option>
                     @endforeach
                 </select>
@@ -60,7 +60,7 @@
 
 <script>
     let chart;
-    const allData = @json($formattedData); // Dados detalhados para todas as filiais
+    const allData = @json($jsonOcorrenciasFilial); // Dados detalhados para todas as filiais
     const graficoElement = document.getElementById('graficoOcorrencias');
     const filialSelect = document.getElementById('filialSelect');
     const currentSelection = document.getElementById('currentSelection');
