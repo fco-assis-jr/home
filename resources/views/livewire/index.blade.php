@@ -1,7 +1,7 @@
-<div> <!-- Elemento raiz do componente Livewire -->
+<div>
     <div class="app-title">
         <h1><i class="bi bi-speedometer"></i> Dashboard</h1>
-        <p>Resumo das Ocorrências</p>
+        <p>Resumo</p>
     </div>
 
     <div class="row">
@@ -29,52 +29,39 @@
         @endforeach
     </div>
 
-    <!-- Gráfico de Pizza para Tipos de Ocorrências com filtro por filial -->
-    <div class="col-md-6">
-        <div class="tile">
-            <!-- Título dinâmico para os gráficos -->
-            <h3 id="currentSelection" style="text-align: center; margin-top: 10px;">Tipos de Ocorrências</h3>
-
-            <!-- Filtro de Filial integrado na mesma div -->
-            <div style="text-align: center; margin: 10px 0;">
-                <label for="filialSelect">Selecionar Filial:</label>
-                <select id="filialSelect" onchange="atualizarGraficoPorFilial()" style="margin-left: 5px;">
-                    <option value="">Todas as Filiais</option>
-                    @foreach(array_keys($jsonOcorrenciasFilial) as $filial)
-                        <option value="{{ $filial }}">Filial {{ $filial }}</option>
-                    @endforeach
-                </select>
+    @foreach(session('pccontro') as $pccontro)
+        @if($pccontro->codrotina == 8177)
+            <div class="col-md-6">
+                <div class="tile">
+                    <h3 id="currentSelection" style="text-align: center; margin-top: 10px;">Tipos de Ocorrências</h3>
+                    <div style="text-align: center; margin: 10px 0;">
+                        <label for="filialSelect">Selecionar Filial:</label>
+                        <select id="filialSelect" style="margin-left: 5px;">
+                            <option value="">Todas as Filiais</option>
+                            @foreach(array_keys($jsonOcorrenciasFilial) as $filial)
+                                <option value="{{ $filial }}">Filial {{ $filial }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div id="graficoOcorrencias" style="height: 400px;"></div>
+                </div>
             </div>
-
-            <!-- Botão "Voltar" que só aparece ao sair do gráfico inicial -->
-            <button id="homeButton" onclick="voltarAoGraficoAnterior()" style="display: none; margin: 10px 0;">Voltar</button>
-
-            <!-- Container do gráfico -->
-            <div id="graficoOcorrencias" style="height: 400px;"></div>
-        </div>
-    </div>
-</div> <!-- Fim do elemento raiz -->
-
-<!-- Importa a biblioteca do ECharts -->
-<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        @endif
+    @endforeach
+</div>
 
 <script>
-    let chart;
-    const allData = @json($jsonOcorrenciasFilial); // Dados detalhados para todas as filiais
-    const graficoElement = document.getElementById('graficoOcorrencias');
-    const filialSelect = document.getElementById('filialSelect');
-    const currentSelection = document.getElementById('currentSelection');
-    const homeButton = document.getElementById('homeButton');
+    document.addEventListener('DOMContentLoaded', function () {
+        const allData = @json($jsonOcorrenciasFilial); // Dados detalhados por filial
+        const totalData = @json($jsonOcorrencias); // Total consolidado para todas as filiais
+        const graficoElement = document.getElementById('graficoOcorrencias');
+        const filialSelect = document.getElementById('filialSelect');
+        const currentSelection = document.getElementById('currentSelection');
+        let chart = echarts.init(graficoElement);
 
-    // Pilha para armazenar o histórico de navegação
-    const navigationStack = [];
-
-    if (graficoElement) {
-        chart = echarts.init(graficoElement);
-
-        // Função para renderizar o gráfico principal ou filtrado
+        // Função para renderizar o gráfico com rótulos personalizados
         function renderChart(data, titulo) {
-            const chartOptions = {
+            const options = {
                 tooltip: {
                     trigger: 'item',
                     formatter: '{b}: {c} ({d}%)'
@@ -82,32 +69,22 @@
                 legend: {
                     orient: 'horizontal',
                     bottom: 10,
-                    data: data.map(item => item.name)
+                    data: data.map(item => item.name),
+                    padding: [0, 0, -10, 0]
                 },
                 series: [{
                     name: 'Tipos de Ocorrências',
                     type: 'pie',
                     radius: ['40%', '70%'],
                     avoidLabelOverlap: false,
-                    itemStyle: {
-                        borderRadius: 10,
-                        borderColor: '#fff',
-                        borderWidth: 2
-                    },
                     label: {
                         show: true,
-                        formatter: '{b}: {d}%',
-                        position: 'outside'
-                    },
-                    labelLine: {
-                        length: 10,
-                        length2: 10
+                        formatter: '{b}: {c} ({d}%)'
                     },
                     data: data
                 }]
             };
-
-            chart.setOption(chartOptions);
+            chart.setOption(options);
             currentSelection.innerText = titulo;
         }
 
@@ -117,26 +94,14 @@
             if (filialSelecionada && allData[filialSelecionada]) {
                 renderChart(allData[filialSelecionada], `Tipos de Ocorrências - Filial ${filialSelecionada}`);
             } else {
-                // Exibe dados agregados de todas as filiais se nenhuma for selecionada
-                const todosOsDados = Object.values(allData).flat();
-                renderChart(todosOsDados, "Tipos de Ocorrências - Todas as Filiais");
+                renderChart(totalData, "Tipos de Ocorrências - Todas as Filiais");
             }
         }
 
-        // Função para voltar ao gráfico anterior usando a pilha
-        function voltarAoGraficoAnterior() {
-            if (navigationStack.length > 0) {
-                const previousChartSetup = navigationStack.pop();
-                chart.clear();
-                previousChartSetup();
-                if (navigationStack.length === 0) {
-                    homeButton.style.display = 'none';
-                    currentSelection.innerText = "Tipos de Ocorrências";
-                }
-            }
-        }
+        // Adiciona o evento 'change' ao select para chamar a função de atualização
+        filialSelect.addEventListener('change', atualizarGraficoPorFilial);
 
-        // Renderiza o gráfico inicial
+        // Renderiza o gráfico inicial com o total consolidado
         atualizarGraficoPorFilial();
-    }
+    });
 </script>

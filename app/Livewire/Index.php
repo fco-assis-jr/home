@@ -5,67 +5,99 @@ namespace App\Livewire;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Exception;
 
 class Index extends Component
 {
     public $qtsugestoes;
     public $qtocorrencias;
     public $jsonOcorrenciasFilial = [];
+    public $jsonOcorrencias = [];
 
     use LivewireAlert;
 
     public function mount()
     {
-        $this->qtsugestoes = $this->countSugestoes();
-        $this->qtocorrencias = $this->countOcorrencias();
-        $this->jsonOcorrenciasFilial = $this->graficoOcorrenciasFilial();
+        try {
+            $this->qtsugestoes = $this->countSugestoes();
+            $this->qtocorrencias = $this->countOcorrencias();
+            $this->jsonOcorrencias = $this->graficoOcorrenciasTotal();
+            $this->jsonOcorrenciasFilial = $this->graficoOcorrenciasFilial();
+        } catch (Exception $e) {
+            $this->alert('error', 'Erro ao consultar o banco de dados. Tente novamente mais tarde.');
+        }
     }
 
-    public function graficoOcorrenciasFilial()
+    private function graficoOcorrenciasFilial()
     {
-        $registros = DB::connection('oracle')->select(/** @lang text */ '
-        SELECT FILIAL AS FILIAL,
-               (SELECT DESCRICAO
-                FROM BDC_REGISTROS_TIPOS@DBL200
-                WHERE CODTIPO = TIPO_REGISTRO) AS TIPO_REGISTRO,
-               COUNT(*) AS QUANTIDADE
-        FROM BDC_REGISTROS_OCORRENCIAS@DBL200
-        GROUP BY FILIAL, TIPO_REGISTRO
-        ORDER BY FILIAL, TIPO_REGISTRO
-    ');
+        try {
+            $registros = DB::connection('oracle')->select('
+                SELECT FILIAL AS FILIAL,
+                       (SELECT DESCRICAO FROM BDC_REGISTROS_TIPOS@DBL200 WHERE CODTIPO = TIPO_REGISTRO) AS TIPO_REGISTRO,
+                       COUNT(*) AS QUANTIDADE
+                FROM BDC_REGISTROS_OCORRENCIAS@DBL200
+                GROUP BY FILIAL, TIPO_REGISTRO
+                ORDER BY FILIAL, TIPO_REGISTRO
+            ');
 
-        $jsonOcorrenciasFilial = [];
-
-        foreach ($registros as $registro) {
-            $filial = $registro->filial;
-            $tipoRegistro = $registro->tipo_registro;
-            $quantidade = $registro->quantidade;
-
-            if (!isset($jsonOcorrenciasFilial[$filial])) {
-                $jsonOcorrenciasFilial[$filial] = [];
+            $jsonOcorrenciasFilial = [];
+            foreach ($registros as $registro) {
+                $jsonOcorrenciasFilial[$registro->filial][] = [
+                    'name' => $registro->tipo_registro,
+                    'value' => $registro->quantidade,
+                ];
             }
 
-            $jsonOcorrenciasFilial[$filial][] = [
-                'name' => $tipoRegistro,
-                'value' => $quantidade,
-            ];
+            return $jsonOcorrenciasFilial;
+        } catch (Exception $e) {
+            $this->alert('error', 'Erro ao carregar dados de ocorrências por filial.');
+            return [];
         }
-
-        return $jsonOcorrenciasFilial;
     }
 
-    public function countSugestoes()
+    private function graficoOcorrenciasTotal()
     {
-        // Conta o número total de sugestões
-        $resultado = DB::connection('oracle')->select("SELECT COUNT(*) AS total FROM BDC_SUGESTOESC@DBL200");
-        return $resultado[0]->total;
+        try {
+            $registros = DB::connection('oracle')->select('
+                SELECT (SELECT DESCRICAO FROM BDC_REGISTROS_TIPOS@DBL200 WHERE CODTIPO = TIPO_REGISTRO) AS TIPO_REGISTRO,
+                       COUNT(*) AS QUANTIDADE
+                FROM BDC_REGISTROS_OCORRENCIAS@DBL200
+                GROUP BY TIPO_REGISTRO
+                ORDER BY TIPO_REGISTRO
+            ');
+
+            return array_map(fn($registro) => [
+                'name' => $registro->tipo_registro,
+                'value' => $registro->quantidade,
+            ], $registros);
+        } catch (Exception $e) {
+            $this->alert('error', 'Erro ao carregar dados de ocorrências totais.');
+            return [];
+        }
     }
 
-    public function countOcorrencias()
+    private function countSugestoes()
     {
-        // Conta o número total de ocorrências
-        $resultado = DB::connection('oracle')->select("SELECT COUNT(*) AS total FROM bdc_registros_ocorrencias@dbl200");
-        return $resultado[0]->total;
+        try {
+            return DB::connection('oracle')
+                ->selectOne("SELECT COUNT(*) AS total FROM BDC_SUGESTOESC@DBL200")
+                ->total;
+        } catch (Exception $e) {
+            $this->alert('error', 'Erro ao contar sugestões.');
+            return 0;
+        }
+    }
+
+    private function countOcorrencias()
+    {
+        try {
+            return DB::connection('oracle')
+                ->selectOne("SELECT COUNT(*) AS total FROM bdc_registros_ocorrencias@dbl200")
+                ->total;
+        } catch (Exception $e) {
+            $this->alert('error', 'Erro ao contar ocorrências.');
+            return 0;
+        }
     }
 
     public function render()
