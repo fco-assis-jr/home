@@ -18,7 +18,7 @@ class Home extends Component
     public $filial;
     public $matricula;
     public $numero_transacao;
-    public $valor_ocorrencia;
+    public $valor_ocorrencia = 'R$ 0,00';
     public $observacoes;
     public $search;
     public $func= [];

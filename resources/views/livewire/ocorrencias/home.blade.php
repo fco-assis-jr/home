@@ -114,7 +114,8 @@
         });
 
         function formatarMoedaH(input) {
-            let valor = input.value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+            if (input.value === '') return;
+            let valor = input.value.replace(/[^0-9]/g, ''); // Remove todos os caracteres não numéricos
             valor = (parseInt(valor) / 100).toFixed(2); // Divide por 100 para transformar centavos em decimais
             input.value = 'R$ ' + valor
                 .replace('.', ',') // Substitui ponto por vírgula para o formato brasileiro
