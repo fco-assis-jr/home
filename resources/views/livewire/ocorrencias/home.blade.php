@@ -11,9 +11,9 @@
             <div class="col-lg-12 col-md-12">
                 <div class="tile">
                     <h3 class="tile-title text-center mb-4">Formulário de Cadastro</h3>
-                    <form wire:submit.prevent="cadastrar()">
-                        <div class="col-md-12">
-                            <div class="row mb-3">
+                    <form wire:submit.prevent="cadastrar()" class="flex justify-content-center">
+                        <div class="col-md-8">
+                            <div class="row">
                                 <div class="col-md mb-3">
                                     <label for="nome">Data de Ocorrência</label>
                                     <input type="date" class="form-control" placeholder="Data de Ocorrência" wire:model="data_ocorrencia">
@@ -35,6 +35,12 @@
                                             <option value="{{ $item->codfil }}">{{ $item->nomfil }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md mb-3">
+                                    <label for="nome">Valor da Ocorrência</label>
+                                    <input type="text" id="valor_ocorrencia" class="form-control" wire:model="valor_ocorrencia" onkeyup="formatarMoedaH(this)">
                                 </div>
                                 <div class="col-md mb-3">
                                     <label for="nome">Número de Transação</label>
@@ -68,9 +74,9 @@
                                     <textarea class="form-control" style="text-align: justify" placeholder="Observações da Ocorrência" wire:model="observacoes" cols="30" rows="5"></textarea>
                                 </div>
                             </div>
-                        </div>
-                        <div class="flex justify-content-center">
-                            <button type="submit" class="btn btn-primary">Cadastrar</button>
+                            <div class="flex justify-content-center">
+                                <button type="submit" class="btn btn-primary">Cadastrar</button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -106,6 +112,16 @@
                 }
             }
         });
+
+        function formatarMoedaH(input) {
+            let valor = input.value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+            valor = (parseInt(valor) / 100).toFixed(2); // Divide por 100 para transformar centavos em decimais
+            input.value = 'R$ ' + valor
+                .replace('.', ',') // Substitui ponto por vírgula para o formato brasileiro
+                .replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Adiciona pontos como separador de milhar
+            input.dispatchEvent(new Event('input'));
+        }
+
 
     </script>
 </div>

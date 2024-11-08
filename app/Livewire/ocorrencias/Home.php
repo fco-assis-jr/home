@@ -18,6 +18,7 @@ class Home extends Component
     public $filial;
     public $matricula;
     public $numero_transacao;
+    public $valor_ocorrencia;
     public $observacoes;
     public $search;
     public $func= [];
@@ -40,7 +41,6 @@ class Home extends Component
 
     public function cadastrar()
     {
-
         if (empty($this->data_ocorrencia) || empty($this->tipo_ocorrencia) || empty($this->matricula) || empty($this->filial) || empty($this->observacoes)) {
             $this->alert('error', 'Preencha todos os campos!');
             return;
@@ -52,6 +52,7 @@ class Home extends Component
         $numero_transacao = $this->numero_transacao;
         $filial = $this->filial;
         $observacoes = $this->observacoes;
+        $valor_ocorrencia = str_replace(['R$ ', '.', ','], ['', '', '.'], $this->valor_ocorrencia);
 
         $matricula = DB::connection('oracle')->select('select matricula from pcempr where matricula = ?', [$matricula]);
         if (empty($matricula)) {
@@ -64,9 +65,9 @@ class Home extends Component
         $seq = DB::connection('oracle')->select('select seq_reg_ocorrencias_id.NEXTVAL@dbl200 as seq from dual');
         $seq = $seq[0]->seq;
 
-        DB::connection('oracle')->insert('insert into bdc_registros_ocorrencias@dbl200 (id, codusuario, tipo_registro, data, filial, codfunc, data_criacao, descricao, numero_transacao)
-        values (?, ?, ?, ?, ?, ?, SYSDATE, ?, ?)',
-            [$seq, auth()->user()->matricula, $tipo_ocorrencia, $data_ocorrencia, $filial, $matricula, $observacoes, $numero_transacao]);
+        DB::connection('oracle')->insert('insert into bdc_registros_ocorrencias@dbl200 (id, codusuario, tipo_registro, data, filial, codfunc, data_criacao, descricao, numero_transacao, valor_ocorrencia)
+        values (?, ?, ?, ?, ?, ?, SYSDATE, ?, ?, ?)',
+            [$seq, auth()->user()->matricula, $tipo_ocorrencia, $data_ocorrencia, $filial, $matricula, $observacoes, $numero_transacao, $valor_ocorrencia]);
 
         $files = $this->files;
         $directory = public_path('ocorrencia_files');
@@ -91,6 +92,7 @@ class Home extends Component
         $this->tipo_ocorrencia = null;
         $this->matricula = null;
         $this->numero_transacao = null;
+        $this->valor_ocorrencia = 'R$ 0,00';
         $this->filial = null;
         $this->observacoes = null;
         $this->files = null;
