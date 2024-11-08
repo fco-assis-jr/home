@@ -36,7 +36,8 @@ class Ocorrencias extends Component
          pc_func.nome AS nome_func,
          to_char(ro.data_criacao, \'DD/MM/YYYY HH24:MI:SS\') AS data_criacao,
          ro.descricao,
-         ro.numero_transacao
+         ro.numero_transacao,
+         ro.valor_ocorrencia
   FROM               bdc_registros_ocorrencias@dbl200 ro
                  INNER JOIN
                      bdc_registros_tipos@dbl200 tp
@@ -156,6 +157,12 @@ class Ocorrencias extends Component
         } catch (\Exception $e) {
             $this->alert('error', 'Erro ao cadastrar a ocorrência.');
         }
+    }
+
+    public function formatarMoeda($value)
+    {
+        //vamos formatar o valor para o padrão brasileiro
+        return 'R$ ' . number_format($value, 2, ',', '.');
     }
 
     public function render()

@@ -11,14 +11,15 @@
             <div class="tile">
                 <table class="table table-bordered table-hover" id="sampleTable">
                     <thead>
-                    <tr class="text-center text-uppercase">
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Filial</th>
-                        <th>Registro</th>
-                        <th>Data da Ocorrência</th>
-                        <th>Número da Transação</th>
-                        <th>Funcionário</th>
+                    <tr class="text-uppercase">
+                        <th class="text-center">ID</th>
+                        <th class="text-center">Usuario</th>
+                        <th class="text-center">Filial</th>
+                        <th class="text-center">Registro</th>
+                        <th class="text-center">Data Ocorrência</th>
+                        <th class="text-center">Transação</th>
+                        <th class="text-center">Valor Ocorrência</th>
+                        <th class="text-center">Funcionário</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -30,6 +31,7 @@
                             <td class="text-center">{{ $item->tipo_registro }}</td>
                             <td class="text-center">{{ $item->data }}</td>
                             <td class="text-center">{{ $item->numero_transacao }}</td>
+                            <td class="text-center">{{ $this->formatarMoeda($item->valor_ocorrencia) }}</td>
                             <td class="text-center">{{ $item->nome_func }}</td>
                         </tr>
                     @endforeach
