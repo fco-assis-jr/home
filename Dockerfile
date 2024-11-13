@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     git \
     nano \
     default-mysql-client \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd tokenizer ctype json xml openssl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copie os arquivos do Oracle Instant Client e do SDK para o contêiner
@@ -46,15 +46,15 @@ WORKDIR /var/www
 # Copia os arquivos do projeto Laravel
 COPY . .
 
-# Configurar arquivo .env (se necessário)
+# Configurar arquivo .env
 COPY .env.example .env
 
-# Instala as dependências do Laravel
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Limite de memória para o Composer e instalação com cache limpo
+RUN composer clear-cache && COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-interaction --verbose
 
 # Ajusta permissões para o Laravel
 RUN chown -R www-data:www-data /var/www && \
     chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
 # Define o comando de inicialização do Laravel
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
