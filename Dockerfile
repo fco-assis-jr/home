@@ -1,7 +1,7 @@
 # Use a imagem base PHP 8.2
 FROM php:8.2-fpm
 
-# Instale as dependÍncias do sistema, Git, Nano, MySQL Client e extensıes PHP necess·rias para o Laravel
+# Instale as depend√™ncias do sistema e extens√µes PHP necess√°rias
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg62-turbo-dev \
@@ -13,13 +13,13 @@ RUN apt-get update && apt-get install -y \
     curl \
     wget \
     libaio1 \
-    git \                   
-    nano \                 
+    git \
+    nano \
     default-mysql-client \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && rm -rf /var/lib/apt/lists/*
 
-# Copie os arquivos do Oracle Instant Client e do SDK para o contÍiner
+# Copie os arquivos do Oracle Instant Client e do SDK para o cont√™iner
 COPY instantclient-basiclite-linux.x64-12.2.0.1.0.zip /opt/oracle/
 COPY instantclient-sdk-linux.x64-12.2.0.1.0.zip /opt/oracle/
 
@@ -33,25 +33,28 @@ RUN cd /opt/oracle && \
     echo "/opt/oracle/instantclient_12_2" > /etc/ld.so.conf.d/oracle-instantclient.conf && \
     ldconfig
 
-# Instale a extens„o oci8 com o Instant Client
+# Instale a extens√£o oci8 com o Instant Client
 RUN docker-php-ext-configure oci8 --with-oci8=instantclient,/opt/oracle/instantclient_12_2 && \
     docker-php-ext-install oci8
 
 # Instale o Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Define o diretÛrio de trabalho
+# Define o diret√≥rio de trabalho
 WORKDIR /var/www
 
 # Copia os arquivos do projeto Laravel
 COPY . .
 
-# Instala as dependÍncias do Laravel
-RUN composer install
+# Configurar arquivo .env (se necess√°rio)
+COPY .env.example .env
 
-# Ajusta permissıes para o Laravel
+# Instala as depend√™ncias do Laravel
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Ajusta permiss√µes para o Laravel
 RUN chown -R www-data:www-data /var/www && \
-    chmod -R 755 /var/www/storage
+    chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
-# Define o comando de inicializaÁ„o do Laravel
+# Define o comando de inicializa√ß√£o do Laravel
 CMD php artisan serve --host=0.0.0.0 --port=8000
