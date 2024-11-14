@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     git \
     nano \
     default-mysql-client \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && rm -rf /var/lib/apt/lists/*
 
@@ -37,7 +38,8 @@ RUN docker-php-ext-configure oci8 --with-oci8=instantclient,/opt/oracle/instantc
 
 # Instale o Node.js 18.x e npm para Vite
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs
+    apt-get install -y nodejs && \
+    npm install -g npm@latest
 
 # Instale o Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -47,7 +49,9 @@ WORKDIR /var/www
 COPY . .
 
 # Instale as dependências do Laravel e do Vite
-RUN composer install && npm install && npm run build
+RUN composer install --no-dev --optimize-autoloader && \
+    npm install && \
+    npm run build
 
 # Ajuste permissões para o Laravel
 RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www/storage
@@ -56,4 +60,4 @@ RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www/storage
 EXPOSE 8000
 
 # Defina o comando de inicialização do Laravel
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
