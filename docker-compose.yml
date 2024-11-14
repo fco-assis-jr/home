@@ -27,3 +27,6 @@ services:
       ORACLE_DB_SERVICE_NAME: wint
       ORACLE_DB_USERNAME: baratao
       ORACLE_DB_PASSWORD: senha
+
+volumes:
+  db_data:
