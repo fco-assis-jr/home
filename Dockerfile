@@ -1,7 +1,7 @@
 # Use a imagem base PHP 8.2
 FROM php:8.2-fpm
 
-# Instale as dependências do sistema e extensões PHP necessárias
+# Instale dependências de sistema e extensões PHP para Laravel
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg62-turbo-dev \
@@ -16,14 +16,12 @@ RUN apt-get update && apt-get install -y \
     git \
     nano \
     default-mysql-client \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd tokenizer ctype json xml openssl \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && rm -rf /var/lib/apt/lists/*
 
-# Copie os arquivos do Oracle Instant Client e do SDK para o contêiner
+# Copie e instale o Oracle Instant Client e o SDK
 COPY instantclient-basiclite-linux.x64-12.2.0.1.0.zip /opt/oracle/
 COPY instantclient-sdk-linux.x64-12.2.0.1.0.zip /opt/oracle/
-
-# Instale o Oracle Instant Client e o SDK
 RUN cd /opt/oracle && \
     unzip instantclient-basiclite-linux.x64-12.2.0.1.0.zip && \
     unzip instantclient-sdk-linux.x64-12.2.0.1.0.zip && \
@@ -37,24 +35,25 @@ RUN cd /opt/oracle && \
 RUN docker-php-ext-configure oci8 --with-oci8=instantclient,/opt/oracle/instantclient_12_2 && \
     docker-php-ext-install oci8
 
+# Instale o Node.js 18.x e npm para Vite
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs
+
 # Instale o Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Define o diretório de trabalho
+# Defina o diretório de trabalho e copie o projeto Laravel
 WORKDIR /var/www
-
-# Copia os arquivos do projeto Laravel
 COPY . .
 
-# Configurar arquivo .env
-COPY .env.example .env
+# Instale as dependências do Laravel e do Vite
+RUN composer install && npm install && npm run build
 
-# Limite de memória para o Composer e instalação com cache limpo
-RUN composer clear-cache && COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-interaction --verbose
+# Ajuste permissões para o Laravel
+RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www/storage
 
-# Ajusta permissões para o Laravel
-RUN chown -R www-data:www-data /var/www && \
-    chmod -R 755 /var/www/storage /var/www/bootstrap/cache
+# Exponha a porta para o Laravel
+EXPOSE 8000
 
-# Define o comando de inicialização do Laravel
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Defina o comando de inicialização do Laravel
+CMD php artisan serve --host=0.0.0.0 --port=8000
