@@ -425,7 +425,6 @@
 
                 // Chama a função do Livewire para atualizar o valor
             @this.call('updateItem', codsug, codsugitem, valorInput)
-                ;
 
                 // Alterna o modo de exibição
                 row.classList.remove("editing");
@@ -459,7 +458,7 @@
                 valorSugeridoCell.innerHTML = valorInput;
 
             @this.call('updateItem', codsug, codsugitem, valorInput)
-                ;
+
 
                 const row = input.closest("tr");
                 if (row) {
