@@ -113,6 +113,7 @@
                                         <th>Unid</th>
                                         <th>Valor</th>
                                         <th>Data de Vencimento</th>
+                                        <th>Código Fornecedor</th>
                                         <th>Ações</th>
                                     </tr>
                                     </thead>
@@ -126,6 +127,7 @@
                                             <td>{{ $item['unid'] }}</td>
                                             <td>{{ $item['valor'] }}</td>
                                             <td>{{ $item['data'] }}</td>
+                                            <td>{{ $item['codfornec']  }}</td>
                                             <td class="flex justify-center gap-3">
                                                 <button class="btn btn-primary" wire:click.prevent="editarItem({{ $index }})"><i class="bi bi-pencil"></i></button>
                                                 <button class="btn btn-danger" wire:click.prevent="removerItem({{ $index }})"><i class="bi bi-trash"></i></button>

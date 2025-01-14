@@ -63,6 +63,10 @@
     </ul>
 </aside>
 
+{{--<div style="height: 100dvh; background-color: #0d1214">
+
+</div>--}}
+
 <main class="app-content">
     <x-livewire-alert::scripts/>
     <div class="cover">
