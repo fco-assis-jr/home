@@ -3,13 +3,17 @@
 namespace App\Livewire\ocorrencias;
 
 use Livewire\Component;
-use Livewire\WithFileUploads; // Adicione esta linha
+use Livewire\WithFileUploads;
+
+// Adicione esta linha
 use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Home extends Component
 {
-    use LivewireAlert, WithFileUploads; // Adicione esta linha
+    use LivewireAlert, WithFileUploads;
+
+    // Adicione esta linha
 
     public $Tipo_ocorrencias = [];
     public $Filiais = [];
@@ -21,7 +25,7 @@ class Home extends Component
     public $valor_ocorrencia = 'R$ 0,00';
     public $observacoes;
     public $search;
-    public $func= [];
+    public $func = [];
     public $files = [];
 
     public function mount()
@@ -108,7 +112,7 @@ class Home extends Component
             $this->func = [];
             return;
         }
-        $mat = DB::connection('oracle')->select("select matricula|| ' - '  || nome AS nome, matricula from pcempr where ( matricula like ? or upper(nome) like upper(?) ) and rownum <= 5", [$this->search.'%', $this->search.'%']);
+        $mat = DB::connection('oracle')->select("select matricula|| ' - '  || nome AS nome, matricula from pcempr where ( matricula like ? or upper(nome) like upper(?) ) and rownum <= 5", [$this->search . '%', $this->search . '%']);
         $this->func = $mat;
     }
 

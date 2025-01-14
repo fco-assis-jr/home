@@ -17,6 +17,7 @@ class Home extends Component
     public $valor;
     public $quantidade;
     public $data;
+    public $codfornec;
     public $itens = [];
     public $indexEditando = null;
     public $pclib_fil = [];
@@ -40,7 +41,7 @@ class Home extends Component
     public function buscar()
     {
         try {
-            if(empty($this->codfilial)){
+            if (empty($this->codfilial)) {
                 $this->toast('error', 'Filial não informada!');
                 return;
             }
@@ -60,7 +61,7 @@ class Home extends Component
     public function buscarProduto($codigo)
     {
         try {
-            if ( $this->edit = false) {
+            if ($this->edit = false) {
                 foreach ($this->itens as $item) {
                     if ($item['codigo'] == $codigo) {
                         $this->toast('info', 'Produto já adicionado!');
@@ -77,11 +78,14 @@ class Home extends Component
                         INSTR (buscaprecos($this->codfilial,1,$codigo,SYSDATE ), ';', 1) - 1)
                         from dual) pvenda,
                      e.codfilial,
-                     e.unidade
+                     e.unidade,
+                     f.codfornec
                   FROM       pcembalagem e
                          INNER JOIN
                              pcprodut p
                          ON e.codprod = p.codprod
+                         INNER JOIN pcfornec f
+                         ON p.codfornec = f.codfornec
                  WHERE   e.codauxiliar = ? and e.codfilial = ?
                  AND NVL (e.pvenda, 0) > 0",
                 [$codigo, $this->codfilial]
@@ -95,6 +99,7 @@ class Home extends Component
             $this->nome = $produtos[0]->descricao;
             $this->valor = 'R$ ' . number_format($produtos[0]->pvenda, 2, ',', '.');
             $this->unid = $produtos[0]->unidade;
+            $this->codfornec = $produtos[0]->codfornec;
             $this->dispatch('nome-preenchido'); // Dispara um evento para focar no campo de quantidade
             $this->adicionarItem();
             $this->edit = false;
@@ -114,6 +119,7 @@ class Home extends Component
             'quantidade' => 'required|numeric',
             'valor' => 'required',
             'data' => 'required|date',
+            'codfornec' => 'required',
         ]);
 
         if (is_null($this->indexEditando)) {
@@ -124,7 +130,8 @@ class Home extends Component
                 'quantidade' => $this->quantidade,
                 'valor' => $this->valor,
                 'data' => date_format(date_create($this->data), 'd/m/Y'),
-                'unid' => $this->unid
+                'unid' => $this->unid,
+                'codfornec' => $this->codfornec
             ];
         } else {
             // Edita o item existente
@@ -135,12 +142,13 @@ class Home extends Component
                 'quantidade' => $this->quantidade,
                 'valor' => $this->valor,
                 'data' => date_format(date_create($this->data), 'd/m/Y'),
-                'unid' => $this->unid
+                'unid' => $this->unid,
+                'codfornec' => $this->codfornec
             ];
             $this->indexEditando = null;
         }
         $this->selectedFilial = 'true';
-        $this->reset(['codigo', 'nome', 'quantidade', 'valor', 'data']); // Limpa os campos do formulário
+        $this->reset(['codigo', 'nome', 'quantidade', 'valor', 'data', 'codfornec']); // Limpa os campos do formulário
         $this->dispatch('NovoItem'); // Dispara um evento para focar no campo de código
     }
 
@@ -154,6 +162,7 @@ class Home extends Component
         $this->quantidade = $item['quantidade'];
         $this->valor = $item['valor'];
         $this->data = date('Y-m-d', strtotime(str_replace('/', '-', $item['data'])));
+        $this->codfornec = $item['codfornec'];
         $this->codfilial = $item['filial'];
         $this->indexEditando = $index;
     }
@@ -194,21 +203,22 @@ class Home extends Component
     {
         try {
 
-            $codsug =  DB::connection('oracle')->select('select to_number(bdc_sugestoesc_seq.nextval@dbl200) as id from dual');
+            $codsug = DB::connection('oracle')->select('select to_number(bdc_sugestoesc_seq.nextval@dbl200) as id from dual');
 
             DB::connection('oracle')->insert('insert into bdc_sugestoesc@dbl200 (codsug,codusuario,data,codfilial)
-                            values (? ,?, sysdate, ?)', [$codsug[0]->id ,auth()->user()->matricula, $this->codfilial]);
+                            values (? ,?, sysdate, ?)', [$codsug[0]->id, auth()->user()->matricula, $this->codfilial]);
 
             if (empty($this->itens)) {
                 $this->toast('error', 'Nenhum item para salvar!');
                 return;
             }
 
+
             foreach ($this->itens as $item) {
                 $valor_produto = str_replace(['R$ ', '.', ','], ['', '', '.'], $item['valor']);
                 DB::connection('oracle')->insert('INSERT INTO bdc_sugestoesi@dbl200
-                    (codsugitem, codsug, codauxiliar, descricao,  valor_produto, data_vencimento, quantidade, status, UNID)
-                    VALUES (bdc_sugestoes_seq.NEXTVAL@dbl200, ?, ?, ?, ?, TO_DATE(?, \'DD/MM/YYYY\'), ?, ?, ?)',
+                    (codsugitem, codsug, codauxiliar, descricao,  valor_produto, data_vencimento, quantidade, status, UNID, codfornec)
+                    VALUES (bdc_sugestoes_seq.NEXTVAL@dbl200, ?, ?, ?, ?, TO_DATE(?, \'DD/MM/YYYY\'), ?, ?, ?, ?)',
                     [
                         $codsug[0]->id,
                         $item['codigo'],
@@ -217,7 +227,8 @@ class Home extends Component
                         $item['data'],
                         $item['quantidade'],
                         '0',
-                        $item['unid']
+                        $item['unid'],
+                        $item['codfornec']
                     ]
                 );
             }
