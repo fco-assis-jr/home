@@ -52,43 +52,43 @@
                         <h6 class="modal-title" id="exampleModalLabel"><i class="bi bi-house-gear-fill"></i> FILIAL: {{ $filial }}</h6>
                         <h6 class="modal-title" id="exampleModalLabel"><i class="bi bi-calendar4-event"></i> {{ $data_criacao }} </h6>
                     </div>
-                    <table class="table table-bordered table-hover table-dark mt-3">
-                        <thead>
-                        <tr class="text-uppercase text-center">
-                            <th>CODSUGITEM</th>
-                            <th>NOME</th>
-                            <th>CODPROD</th>
-                            <th>CODAUXILIAR</th>
-                            <th>VALOR PRODUTO</th>
-                            <th>QUANTIDADE</th>
-                            <th>DATA VENCIMENTO</th>
-                            <th>STATUS</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach ($itensi as $index => $item)
-                            <tr class="text-uppercase text-center align-middle cursor-pointer {{ $item->status == '0' ? 'table-primary' : 'table-danger' }}"
-                                @if($item->status == '0') wire:click="editItem({{ $item->codsug }}, {{ $item->codsugitem }}, {{ $item->quantidade }}, '{{ $item->data_vencimento }}' )" @endif
-                            >
-                                <td>{{ $item->codsugitem }}</td>
-                                <td class="truncate" title="{{ $item->descricao }} | {{ $item->unid }}">
-                                    <div style="width: 100%; overflow: auto;">
-                                        {{ $item->descricao }} | {{ $item->unid }}
-                                    </div>
-                                </td>
-                                <td>{{ $item->codprod }}</td>
-                                <td>{{ $item->codauxiliar }}</td>
-                                <td>{{ $item->valor_produto }}</td>
-                                <td>{{ $item->quantidade }}</td>
-                                <td>{{ $item->data_vencimento }}</td>
-                                <td>
+                    <div style="height: 500px; overflow: scroll">
+                        <table class="table table-bordered table-hover table-dark mt-3">
+                            <thead>
+                            <tr class="text-uppercase text-center">
+                                <th>CODSUGITEM</th>
+                                <th>NOME</th>
+                                <th>CODPROD</th>
+                                <th>CODAUXILIAR</th>
+                                <th>VALOR PRODUTO</th>
+                                <th>QUANTIDADE</th>
+                                <th>DATA VENCIMENTO</th>
+                                <th>STATUS</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($itensi as $index => $item)
+                                <tr class="text-uppercase text-center align-middle cursor-pointer {{ $item->status == '0' ? 'table-primary' : 'table-danger' }}"
+                                    @if($item->status == '0') wire:click="editItem({{ $item->codsug }}, {{ $item->codsugitem }}, {{ $item->quantidade }}, '{{ $item->data_vencimento }}' )" @endif
+                                >
+                                    <td>{{ $item->codsugitem }}</td>
+                                    <td class="truncate text-left" title="{{ $item->descricao }} | {{ $item->unid }}">
+                                        {{ Str::limit($item->descricao.' '.$item->unid, 40, '...') }}
+                                    </td>
+                                    <td>{{ $item->codprod }}</td>
+                                    <td>{{ $item->codauxiliar }}</td>
+                                    <td>{{ $item->valor_produto }}</td>
+                                    <td>{{ $item->quantidade }}</td>
+                                    <td>{{ $item->data_vencimento }}</td>
+                                    <td>
                                     <span class="{{ $item->status == '0' ? 'badge bg-primary' : 'badge bg-danger' }}">
                                          {{ $item->status == '0' ? 'ATIVO' : 'LANÇADO' }}
                                     </span>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </table>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </table>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>

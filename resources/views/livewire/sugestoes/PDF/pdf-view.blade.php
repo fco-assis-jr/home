@@ -67,17 +67,19 @@
     </style>
 </head>
 <body>
-<div class="header" style="padding-bottom: 7rem">
+<div class="header" style="padding-bottom: 3rem">
     <div>
-        <span style="position: absolute"><b>227 - FICHA TECNICA POR FORNECEDOR</b></span>
+        <span style="position: absolute; font-size: 20px"><b>227 - FICHA TECNICA POR FORNECEDOR</b></span>
         <span style="position: absolute; margin-left: 880px">
             {{ \Carbon\Carbon::now()->format('d/m/Y H:i:s') }}<br>
-            <span style="color: red">{{ auth()->user()->usuariobd }}</span>
+            <span style="color: red; font-size: 14px">{{ auth()->user()->matricula }} | {{ auth()->user()->usuariobd }}</span>
         </span>
     </div>
-    <div style="position: absolute; margin-top: 100px;">
+    <div style="position: absolute; margin-top: 50px;">
         <span>FORNECEDOR: {{ $itensc[0]['CODFORNEC'] }} - {{ $itensc[0]['FORNECEDOR'] }} </span><br>
         <span style="color: red">FILIAL:{{ $itensc[0]['CODFILIAL'] }}</span>
+        {{-- temos que colocar o numero da pagina aqui --}}
+
     </div>
 </div>
 <div>
@@ -177,7 +179,7 @@
                 <td class="text-uppercase text-center" style="width: 28%">
                     <div class="row">
                         <div style="font-size: 9px; padding-right: 20px; text-align: left; margin-top: -10px; position: absolute">
-                            <span>{{ $item['CODPROD'] }} | {{ Str::limit($item['DESCRICAO'].' '.$item['EMBALAGEMMASTER'], 50, '...') }}</span>
+                            <span>{{ $item['CODPROD'] }} | {{ Str::limit($item['DESCRICAO'].' '.$item['EMBALAGEMMASTER'], 40, '...') }}</span>
                         </div>
                         <div style="font-size: 9px;text-align: left; margin-top: 5px; position: absolute">
                             <span style="position: absolute; ">{{ $item['CODAUXILIAR'] }}</span>
@@ -266,22 +268,6 @@
         </tbody>
     </table>
 </div>
-<script>
-    // Função para formatar o valor em moeda brasileira
-    function formatReal(valor) {
-        // Substitui vírgulas por pontos para garantir que parseFloat funcione
-        const parsedValue = parseFloat(valor.replace(',', '.').replace(/[^\d.-]/g, ''));
-        if (isNaN(parsedValue)) return 'R$ 0,00'; // Caso não seja um número válido
-        return parsedValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
-
-    // Aplica a formatação no valor dentro do span
-    const spanOferta = document.getElementById('vlOferta');
-    if (spanOferta) {
-        // Remove possíveis espaços e formata o valor
-        spanOferta.textContent = formatReal(spanOferta.textContent.trim());
-    }
-</script>
 </body>
 </html>
 

@@ -3,11 +3,11 @@
 namespace App\Livewire\sugestoes;
 
 
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use PDO;
-use Illuminate\Support\Facades\Crypt;
 
 class Avaliar extends Component
 {
@@ -15,8 +15,6 @@ class Avaliar extends Component
 
     public $itensc = [];
     public $itensi = [];
-    public $codprod;
-    public $codauxiliar_master;
     public $codfilial;
     public $data_inicial;
     public $data_final;
@@ -31,7 +29,6 @@ class Avaliar extends Component
 
     public function mount()
     {
-
         $itens = DB::connection('oracle')->select(
             "SELECT  distinct c.codsug,
                              p.nome,
@@ -98,7 +95,7 @@ class Avaliar extends Component
                 $resultado = $this->buscarProdutoRotina($produto->codprod, $produto->codfilial);
 
                 // Mesclar os dados do produto com os resultados encontrados (ou vazio caso não haja dados)
-                $produto_com_dados = (array) $produto; // Converte o produto (caso seja objeto) para array
+                $produto_com_dados = (array)$produto; // Converte o produto (caso seja objeto) para array
                 $produto_com_dados['consulta_dados'] = !empty($resultado) ? $resultado : null;
 
                 $produtos_com_dados[] = $produto_com_dados;
@@ -116,11 +113,11 @@ class Avaliar extends Component
                         if (!isset($this->cabecario_227_agrupado[$value2['CODFORNEC']])) {
                             // Inicializa o fornecedor na primeira vez
                             $this->cabecario_227_agrupado[$value2['CODFORNEC']] = [
-                                'CODFORNEC'     => $value2['CODFORNEC'],
-                                'FORNECEDOR'    => $value2['FORNECEDOR'],
-                                'PRAZOENTREGA'  => $value2['PRAZOENTREGA'],
-                                'OBSERVACAO'    => $value2['OBSERVACAO'],
-                                'QUANTIDADE'    => 0, // Inicializa a quantidade
+                                'CODFORNEC' => $value2['CODFORNEC'],
+                                'FORNECEDOR' => $value2['FORNECEDOR'],
+                                'PRAZOENTREGA' => $value2['PRAZOENTREGA'],
+                                'OBSERVACAO' => $value2['OBSERVACAO'],
+                                'QUANTIDADE' => 0, // Inicializa a quantidade
                             ];
                         }
 
@@ -129,7 +126,6 @@ class Avaliar extends Component
                     }
                 }
             }
-
 
         } catch (\Exception $e) {
             $this->toast('error', 'Erro ao buscar produto!');
@@ -171,16 +167,13 @@ class Avaliar extends Component
     public function salvar_dados()
     {
         foreach ($this->dados_cursor as $key => $value) {
-            if ($value['VL_REEMBOLSO'] <= 0 || $value['VL_OFERTA'] <= 0) {
-                $this->toast('error', 'Valor Reembolso e Valor Oferta não podem ser Zerados!');
-                return;
-            }
             try {
                 DB::connection('oracle')->update(
                     "UPDATE bdc_sugestoesi@dbl200
                         SET
                             vl_reembolso = :vl_reembolso,
-                            vl_oferta = :vl_oferta
+                            vl_oferta = :vl_oferta,
+                            status = 1
                       WHERE codsugitem = :codsugitem
                         AND codsug = :codsug",
                     [
@@ -196,84 +189,9 @@ class Avaliar extends Component
             }
         }
 
-
-        foreach ($this->dados_cursor as $key => &$value) {
-            $value['VL_REEMBOLSO'] = 'R$ ' . number_format($value['VL_REEMBOLSO'], 2, ',', '.');
-            $value['VL_OFERTA'] = 'R$ ' . number_format($value['VL_OFERTA'], 2, ',', '.');
-        }
-
-
         $this->VisualizarPDF($this->dados_cursor);
-        $this->redirect(route('sugestoes.avaliar'));
+        /*$this->redirect(route('sugestoes.avaliar'));*/
 
-    }
-
-    public function StatusItem($CodSugItem, $Codsug, $CodStatus)
-    {
-
-        $this->alert('warning', 'Você tem certeza?', [
-            'toast' => true,
-            'timer' => 50000,
-            'position' => 'center',
-            'timerProgressBar' => true,
-            'showCancelButton' => true,
-            'showConfirmButton' => true,
-            'onCancel' => 'cancelDeletion',
-            'onConfirmed' => 'confirmar',
-            'data' => ['CodSugItem' => $CodSugItem, 'Codsug' => $Codsug, 'CodStatus' => $CodStatus]
-        ]);
-
-    }
-
-    public function confirmar($data)
-    {
-
-        try {
-            if ($data['CodStatus'] == 1) {
-                DB::connection('oracle')->update("UPDATE BDC_SUGESTOESI@DBL200 SET STATUS = 1 WHERE CODSUGITEM = ?", [$data['CodSugItem']]);
-            }
-            if ($data['CodStatus'] == 2) {
-                DB::connection('oracle')->update("UPDATE BDC_SUGESTOESI@DBL200 SET STATUS = 2 WHERE CODSUGITEM = ?", [$data['CodSugItem']]);
-            }
-            $this->toast('success', 'Confirmado com Sucesso!');
-            $this->modalOpen($data['Codsug']);
-
-        } catch (\Exception $e) {
-            $this->toast('error', 'Erro ao Alterar Status!');
-        }
-
-    }
-
-    public function getStatusBadge($status)
-    {
-        $badgeClass = match ($status) {
-            '0' => 'badge bg-secondary',
-            '1' => 'badge bg-primary',
-            '2' => 'badge bg-danger',
-            default => 'badge bg-light',
-        };
-
-        $statusText = match ($status) {
-            '0' => 'AGUARDANDO',
-            '1' => 'CONFIRMADO',
-            '2' => 'REJEITADO',
-            default => 'INDEFINIDO',
-        };
-
-        return [
-            'class' => $badgeClass,
-            'text' => $statusText,
-        ];
-    }
-
-    public function getStyleTable($status)
-    {
-        return match ($status) {
-            '0' => 'table-warning',
-            '1' => 'table-primary',
-            '2' => 'table-danger',
-            default => '',
-        };
     }
 
     public function buscarProdutoRotina($codprod, $codfilial)
@@ -325,7 +243,6 @@ class Avaliar extends Component
 
                 DB::commit();
 
-                // Retorna os resultados encontrados
                 return $finalResult;
             } else {
                 DB::commit();
@@ -352,43 +269,18 @@ class Avaliar extends Component
         return 'R$ ' . number_format($value, 2, ',', '.');
     }
 
-    public function updateItem($codsug, $codsugitem, $valor_sugerido)
-    {
-        try {
-            $valor_produto = str_replace(['R$ ', '.', ','], ['', '', '.'], $valor_sugerido);
-
-            if (floatval($valor_produto) == 0.0) {
-                $this->toast('error', 'Valor Sugerido Zerado!');
-                return;
-            }
-
-            DB::connection('oracle')->update(
-                "UPDATE bdc_sugestoesi@dbl200
-                    SET
-                        valor_sugerido = :valor_sugerido,
-                        status = 1
-                  WHERE codsug = :codsug
-                    AND codsugitem = :codsugitem",
-                [
-                    'valor_sugerido' => $valor_produto,
-                    'codsug' => $codsug,
-                    'codsugitem' => $codsugitem
-                ]
-            );
-            $this->modalOpen($codsug);
-            $this->toast('success', 'Item atualizado com sucesso!');
-
-        } catch (\Exception $e) {
-            $this->toast('error', 'Erro ao atualizar item!');
-        }
-    }
-
     public function VisualizarPDF($data)
     {
-        $url = route('sugestoes.visualizar-pdf', ['itensc' => $data]);
-        $this->dispatch('abrir-nova-aba', ['url' => $url]);
-
+        $seconds = 300; //  5 minutos
+        $cacheKey = 'pdf_data_' . md5(json_encode($data));
+        $value = Cache::remember($cacheKey, $seconds, function () use ($data) {
+            return $data;
+        });
+        $this->dispatch('abrir-nova-aba', [
+            'url' => route('sugestoes.visualizar-pdf', ['cacheKey' => $cacheKey])
+        ]);
     }
+
 
     public function render()
     {

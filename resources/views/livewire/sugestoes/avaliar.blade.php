@@ -6,6 +6,12 @@
         </div>
     </div>
 
+    <div wire:loading wire:target="modalOpen, modalOpenOptions">
+        <div style="display: flex; justify-content: center; align-items: center; background-color: black; position: fixed; top: 0; left: 0; z-index: 9999; width: 100%; height: 100%; opacity: 0.75;">
+            <p class="loader"></p>
+        </div>
+    </div>
+
     <div class="row justify-content-center">
         <div class="container mt-4" wire:ignore>
             <div class="tile">
@@ -175,7 +181,7 @@
                                                     <span>DESCRIÇÃO</span>
                                                 </div>
                                                 <div>
-                                                    <span>CODFAB</span>
+                                                    <span>VENCIMENTO</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -273,7 +279,7 @@
                             </thead>
                             <tbody>
                             @foreach ($dados_cursor as $index => $item)
-                                <tr>
+                                <tr style="{{ ($item['VL_REEMBOLSO'] <= 0 || $item['VL_OFERTA'] <= 0) ? 'background-color: #f87171;' : '' }}">
                                     <td class="text-uppercase text-center">
                                         <div class="col-md-12">
                                             <div class="row">
@@ -284,7 +290,7 @@
                                                     <div class="w-full text-left">
                                                         <span
                                                             title="{{ $item['DESCRICAO'].' '.$item['EMBALAGEMMASTER'] }}">
-                                                            {{ Str::limit($item['DESCRICAO'].' '.$item['EMBALAGEMMASTER'], 35, '...') }}
+                                                            {{ Str::limit($item['DESCRICAO'].' '.$item['EMBALAGEMMASTER'], 30, '...') }}
                                                         </span>
                                                     </div>
                                                 </div>
