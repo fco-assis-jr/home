@@ -74,24 +74,35 @@
     </div>
 </main>
 <script>
-    document.querySelector("html").classList.add('js');
-    document.addEventListener('livewire:init', () => {
-        Livewire.on('nome-preenchido', () => document.getElementById('quantidade').focus());
-        Livewire.on('NovoItem', () => document.getElementById('codigo').focus());
-        Livewire.on('ModalTableAvaliar', () => $('#ModalTableAvaliar').modal('show'));
-        Livewire.on('ModalOptions', () => $('#ModalTableAvaliarOptions').modal('show'));
-        Livewire.on('ModalTableAvaliar227', () => $('#ModalTableAvaliar227').modal('show'));
-        Livewire.on('ModalEditItem', () => $('#ModalEditItem').modal('show'));
-        Livewire.on('closeModalEditItem', () => $('#ModalEditItem').modal('hide'));
-        Livewire.on('abrir-nova-aba', data => window.open(data[0].url, '_blank'));
-        Livewire.on('AbrirModalEditar', () => {$('#exampleModalEditar').modal('show');});
-        Livewire.on('FecharModalEditar', () => {$('#exampleModalEditar').modal('hide');});
-        Livewire.on('FecharModalCadastro', () => {$('#exampleModal').modal('hide');});
-        Livewire.on('abrirModalOcorrencia', () => {$('#ModalOcorrencia').modal('show');});
-        Livewire.on('OpenDuplicarModal', () => {$('#ModalDuplicarOcorrencia').modal('show');});
-        Livewire.on('FecharDuplicarModal', () => {$('#ModalOcorrencia').hide('show');});
-        Livewire.on('FecharModalOcorrencia', () => {$('#ModalDuplicarOcorrencia').hide('show');});
-    });
+   document.querySelector("html").classList.add('js');
+
+document.addEventListener('livewire:init', () => {
+    const modalTableAvaliar = $('#ModalTableAvaliar');
+    const modalTableAvaliarOptions = $('#ModalTableAvaliarOptions');
+    const modalTableAvaliar227 = $('#ModalTableAvaliar227');
+    const modalEditItem = $('#ModalEditItem');
+    const exampleModalEditar = $('#exampleModalEditar');
+    const exampleModal = $('#exampleModal');
+    const modalOcorrencia = $('#ModalOcorrencia');
+    const modalDuplicarOcorrencia = $('#ModalDuplicarOcorrencia');
+
+    Livewire.on('nome-preenchido', () => document.getElementById('quantidade').focus());
+    Livewire.on('NovoItem', () => document.getElementById('codigo').focus());
+    Livewire.on('ModalTableAvaliar', () => modalTableAvaliar.modal('show'));
+    Livewire.on('ModalOptions', () => modalTableAvaliarOptions.modal('show'));
+    Livewire.on('ModalTableAvaliar227', () => modalTableAvaliar227.modal('show'));
+    Livewire.on('ModalEditItem', () => modalEditItem.modal('show'));
+    Livewire.on('closeModalEditItem', () => modalEditItem.modal('hide'));
+    Livewire.on('abrir-nova-aba', data => window.open(data[0].url, '_blank'));
+    Livewire.on('AbrirModalEditar', () => exampleModalEditar.modal('show'));
+    Livewire.on('FecharModalEditar', () => exampleModalEditar.modal('hide'));
+    Livewire.on('FecharModalCadastro', () => exampleModal.modal('hide'));
+    Livewire.on('abrirModalOcorrencia', () => modalOcorrencia.modal('show'));
+    Livewire.on('OpenDuplicarModal', () => modalDuplicarOcorrencia.modal('show'));
+    Livewire.on('FecharDuplicarModal', () => modalOcorrencia.modal('hide'));
+    Livewire.on('FecharModalOcorrencia', () => modalDuplicarOcorrencia.modal('hide'));
+});
+
 
     function formatarMoeda(input) {
         let valor = input.value.replace(/\D/g, '');
