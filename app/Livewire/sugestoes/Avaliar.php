@@ -20,66 +20,142 @@ class Avaliar extends Component
     public $data_final;
     public $nome;
     public $filial;
-    public $data_criacao;
+    public $data_criacao = [];
     public $status;
     public $cabecario_227_agrupado = [];
     public $dados_cursor = [];
     protected $listeners = ['confirmar'];
 
 
+
     public function mount()
     {
+        $this->home();
+    }
+
+    public function home()
+    {
         $itens = DB::connection('oracle')->select(
-            "SELECT  distinct c.codsug,
-                             p.nome,
-                             TO_CHAR(c.data, 'DD/MM/YYYY HH24:MI:SS') data,
-                             c.codfilial,
-                             (select count(1) from bdc_sugestoesi@dbl200 i where i.codsug = c.codsug ) as qtd_aguardando
-                      FROM   bdc_sugestoesc@dbl200 c,
-                             pcempr p
-                     WHERE   p.matricula = c.codusuario order by c.codsug desc"
+            "WITH status_sugestao
+                                AS (  SELECT   codsug,
+                                               CASE
+                                                   WHEN SUM(CASE
+                                                                WHEN    numverba IS NULL
+                                                                     OR TRIM (numverba) = ''
+                                                                     OR inioferta IS NULL
+                                                                     OR fimoferta IS NULL
+                                                                     OR vl_oferta <= 0
+                                                                     OR vl_reembolso <= 0
+                                                                THEN
+                                                                    1
+                                                                ELSE
+                                                                    0
+                                                            END) > 0
+                                                   THEN
+                                                       'INCOMPLETO'
+                                                   ELSE
+                                                       'COMPLETO'
+                                               END
+                                                   AS status
+                                        FROM   bdc_sugestoesi@dbl200
+                                    GROUP BY   codsug)
+                          SELECT   c.codsug,
+                                   p.nome,
+                                   TO_CHAR (c.data, 'DD/MM/YYYY HH24:MI:SS') AS data,
+                                   c.codfilial,
+                                   (SELECT   COUNT (1)
+                                      FROM   bdc_sugestoesi@dbl200 i
+                                     WHERE   i.codsug = c.codsug)
+                                       AS qtd_aguardando,
+                                   (SELECT   s.status
+                                      FROM   status_sugestao s
+                                     WHERE   s.codsug = c.codsug)
+                                       AS status
+                            FROM       bdc_sugestoesc@dbl200 c
+                                   INNER JOIN
+                                       pcempr p
+                                   ON p.matricula = c.codusuario
+                        ORDER BY   c.codsug DESC"
         );
         $this->itensc = $itens;
-
     }
 
     public function modalOpen($index)
     {
         try {
             $produtos = DB::connection('oracle')->select(
-                "SELECT   DISTINCT c.codsug,
-                                      e.codprod,
-                                      TO_CHAR (c.data, 'DD/MM/YYYY HH24:MI:SS') data,
-                                      i.codsugitem,
-                                      i.codsug,
-                                      i.codauxiliar,
-                                      i.descricao,
-                                      i.valor_produto,
-                                      nvl(i.valor_sugerido,0) valor_sugerido,
-                                      TO_CHAR(i.data_vencimento, 'DD/MM/YYYY') data_vencimento,
-                                      i.quantidade,
-                                      i.status,
-                                      i.unid,
-                                      c.codfilial,
-                                      p.codauxiliar prod_codauxiliar,
-                                      emp.nome,
-                                      f.codfornec,
-                                      f.fornecedor fornecedor,
-                                      i.vl_reembolso,
-                                      i.vl_oferta
-                      FROM   bdc_sugestoesi@dbl200 i,
-                             bdc_sugestoesc@dbl200 c,
-                             pcembalagem e,
-                             pcprodut p,
-                             pcempr emp,
-                             pcfornec f
-                     WHERE       i.codsug = c.codsug
-                             AND e.codauxiliar = i.codauxiliar
-                             AND c.codusuario = emp.matricula
-                             AND p.codprod = e.codprod
-                             AND c.codfilial = e.codfilial
-                             AND f.codfornec = i.codfornec
-                             AND c.codsug = :codsug order by i.codsugitem asc",
+                "
+                        WITH status_sugestao
+                                AS (  SELECT   codfornec,
+                                               codsug,
+                                               CASE
+                                                   WHEN SUM(CASE
+                                                                WHEN    numverba IS NULL
+                                                                     OR TRIM (numverba) = ''
+                                                                     OR inioferta IS NULL
+                                                                     OR fimoferta IS NULL
+                                                                     OR vl_oferta <= 0
+                                                                     OR vl_reembolso <= 0
+                                                                THEN
+                                                                    1
+                                                                ELSE
+                                                                    0
+                                                            END) > 0
+                                                   THEN
+                                                       'INCOMPLETO'
+                                                   ELSE
+                                                       'COMPLETO'
+                                               END
+                                                   AS status
+                                        FROM   bdc_sugestoesi@dbl200
+                                       WHERE   codsug = :codsug
+                                    GROUP BY   codfornec, codsug)
+                          SELECT   DISTINCT
+                                   c.codsug,
+                                   e.codprod,
+                                   TO_CHAR (c.data, 'DD/MM/YYYY HH24:MI:SS') AS data,
+                                   i.codsugitem,
+                                   i.codsug,
+                                   i.codauxiliar,
+                                   i.descricao,
+                                   i.valor_produto,
+                                   NVL (i.valor_sugerido, 0) AS valor_sugerido,
+                                   TO_CHAR (i.data_vencimento, 'DD/MM/YYYY') AS data_vencimento,
+                                   i.quantidade,
+                                   i.status,
+                                   i.unid,
+                                   c.codfilial,
+                                   p.codauxiliar AS prod_codauxiliar,
+                                   emp.nome,
+                                   f.codfornec,
+                                   f.fornecedor AS fornecedor,
+                                   i.vl_reembolso,
+                                   i.vl_oferta,
+                                   i.numverba,
+                                   TO_CHAR (i.inioferta, 'YYYY-MM-DD') AS inioferta,
+                                   TO_CHAR (i.fimoferta, 'YYYY-MM-DD') AS fimoferta,
+                                   (SELECT   s.status
+                                      FROM   status_sugestao s
+                                     WHERE   s.codsug = c.codsug AND s.codfornec = f.codfornec)
+                                       AS status_status
+                            FROM                       bdc_sugestoesi@dbl200 i
+                                                   JOIN
+                                                       bdc_sugestoesc@dbl200 c
+                                                   ON i.codsug = c.codsug
+                                               JOIN
+                                                   pcembalagem e
+                                               ON e.codauxiliar = i.codauxiliar
+                                           JOIN
+                                               pcprodut p
+                                           ON p.codprod = e.codprod
+                                       JOIN
+                                           pcempr emp
+                                       ON c.codusuario = emp.matricula
+                                   JOIN
+                                       pcfornec f
+                                   ON f.codfornec = i.codfornec
+                           WHERE   c.codsug = :codsug
+                        ORDER BY   i.codsugitem ASC",
                 ['codsug' => $index]
             );
 
@@ -103,7 +179,6 @@ class Avaliar extends Component
 
             $this->itensi = $produtos_com_dados;
 
-
             // agora vamos entrar dentro do array consulta_dados e vamos agrupar o CODFORNEC,FORNECEDOR,PRAZOENTREGA,OBSERVACAO e vamos colocar dentro do array $cabecario_227_agrupado
 
             $this->cabecario_227_agrupado = [];
@@ -118,6 +193,8 @@ class Avaliar extends Component
                                 'PRAZOENTREGA' => $value2['PRAZOENTREGA'],
                                 'OBSERVACAO' => $value2['OBSERVACAO'],
                                 'QUANTIDADE' => 0, // Inicializa a quantidade
+                                'ITENS_STATUS' => $value['status_status'],
+                                'DATACRIACAO' => $value['data'],
                             ];
                         }
 
@@ -145,6 +222,9 @@ class Avaliar extends Component
                         $value2['QUANTIDADE'] = $value['quantidade'] ?? null;
                         $value2['VL_REEMBOLSO'] = $value['vl_reembolso'] ?? null;
                         $value2['VL_OFERTA'] = $value['vl_oferta'] ?? null;
+                        $value2['NUMVERBA'] = $value['numverba'] ?? null;
+                        $value2['INIOFERTA'] = $value['inioferta'] ?? null;
+                        $value2['FIMOFERTA'] = $value['fimoferta'] ?? null;
                         $this->dados_cursor[] = $value2;
                     }
                 }
@@ -155,12 +235,20 @@ class Avaliar extends Component
 
     public function updateValue($index, $field, $value)
     {
-        // Remover 'R$', ponto ou vírgula e espaços visíveis ou invisíveis (incluindo o No-Break Space)
+
         $valor_produto = preg_replace('/[^\d.,]+/', '', $value);
         $valor_produto = str_replace(',', '.', $valor_produto);
 
         if (isset($this->dados_cursor[$index]) && array_key_exists($field, $this->dados_cursor[$index])) {
             $this->dados_cursor[$index][$field] = $valor_produto;
+        }
+
+    }
+
+    public function updateValue2($campo, $value)
+    {
+        foreach ($this->dados_cursor as $key => $item) {
+            $this->dados_cursor[$key][$campo] = $value;
         }
     }
 
@@ -173,14 +261,20 @@ class Avaliar extends Component
                         SET
                             vl_reembolso = :vl_reembolso,
                             vl_oferta = :vl_oferta,
-                            status = 1
+                            status = 1,
+                            numverba = :numverba,
+                            inioferta = :inioferta,
+                            fimoferta = :fimoferta
                       WHERE codsugitem = :codsugitem
                         AND codsug = :codsug",
                     [
                         'vl_reembolso' => floatval(str_replace(',', '.', $value['VL_REEMBOLSO'])),
                         'vl_oferta' => floatval(str_replace(',', '.', $value['VL_OFERTA'])),
                         'codsugitem' => $value['CODSUGITEM'],
-                        'codsug' => $value['CODSUG']
+                        'codsug' => $value['CODSUG'],
+                        'numverba' => $value['NUMVERBA'],
+                        'inioferta' => $value['INIOFERTA'],
+                        'fimoferta' => $value['FIMOFERTA']
                     ]
                 );
                 $this->toast('success', 'Item atualizado com sucesso!');
@@ -190,7 +284,9 @@ class Avaliar extends Component
         }
 
         $this->VisualizarPDF($this->dados_cursor);
-        /*$this->redirect(route('sugestoes.avaliar'));*/
+        $this->modalOpen($this->dados_cursor[0]['CODSUG']);
+        $this->home();
+        $this->dados_cursor = [];
 
     }
 
