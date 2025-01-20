@@ -14,13 +14,13 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
 .spin {
-        display: inline-block;
-        animation: spin 1s linear infinite;
-    }
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
 /* Definição da animação de rotação */
 @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 /* Primary Button */
 .t-btn-primary {
@@ -2172,8 +2172,8 @@ progress {
     --bs-table-bg-type: initial;
     --bs-table-color-state: initial;
     --bs-table-bg-state: initial;
-    --bs-table-color: var(--bs-emphasis-color);
-    --bs-table-bg: var(--bs-body-bg);
+    /*--bs-table-color: var(--bs-emphasis-color);
+    --bs-table-bg: var(--bs-body-bg);*/
     --bs-table-border-color: var(--bs-border-color);
     --bs-table-accent-bg: transparent;
     --bs-table-striped-color: var(--bs-emphasis-color);

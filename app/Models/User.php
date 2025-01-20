@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     protected $connection = 'mysql'; // Conexão com o MySQL
-    protected $table = 'users'; // Tabela de usuários no MySQL
+    protected $table = 'users'; // Tabela227 de usuários no MySQL
 
     protected $fillable = [
         'matricula',

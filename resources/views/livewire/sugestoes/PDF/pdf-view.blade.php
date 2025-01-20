@@ -234,7 +234,18 @@
                 <td>
                     <div class="row">
                         <div style="font-size: 9px; padding-right: 20px; text-align: left; margin-top: -10px; position: absolute">
-                            <span style="position: absolute;">{{ $item['MARGEM_PVENDA'] }}</span>
+                            <span style="position: absolute;">
+                               @php
+                                   $margem_pvenda = explode(' - ', $item['MARGEM_PVENDA']);
+                               @endphp
+
+                                @if (count($margem_pvenda) > 1)
+                                    <span style=" color: red;transform: rotate(270deg);margin-left: -14px;margin-top: 5px;font-weight: bold; position: absolute;">oferta</span>
+                                    <span style="margin-left: 8px;margin-top: 5px; position: absolute;">{{ $margem_pvenda[0] }}</span>
+                                @else
+                                    {{ $margem_pvenda[0] }}
+                                @endif
+                            </span>
                             <span style="position: absolute; margin-left: 55px">{{ $item['MARGEM_ATUAL'] }}</span>
                             <span style="position: absolute; margin-left: 105px">{{ $item['MARGEM_WINTHOR'] }}</span>
                         </div>
@@ -267,6 +278,11 @@
         @endforeach
         </tbody>
     </table>
+    <div style="position: absolute; margin-top: 50px; font-size: 10px; display: flex">
+        <span>NUM. VERBA: {{ $itensc[0]['NUMVERBA'] }} </span><br>
+        <span>INICIO OFERTA: {{ \Carbon\Carbon::parse($itensc[0]['INIOFERTA'])->format('d/m/Y') }} </span><br>
+        <span>FIM OFERTA: {{ \Carbon\Carbon::parse($itensc[0]['FIMOFERTA'])->format('d/m/Y') }} </span><br>
+    </div>
 </div>
 </body>
 </html>

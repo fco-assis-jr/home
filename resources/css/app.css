@@ -148,3 +148,10 @@
     }
 }
 
+.oferta-margem-pvenda {
+    color: red;
+    transform: rotate(270deg);
+    margin-left: -21px;
+    margin-top: 10px;
+    font-weight: bold;
+}
