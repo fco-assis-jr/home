@@ -50,7 +50,7 @@
                         <div class="row font-bold mb-2 col-md-12"
                              style="font-size: 14px; display: grid; justify-content: center; align-items: center;">
                             <div class="col-md-12">
-                                <label class="form-label">NUM. OFERTA</label>
+                                <label class="form-label">NUM. VERBA</label>
                                 <input type="text"
                                        class="form-control {{ $item['NUMVERBA'] == '' ? 'is-invalid' : '' }}"
                                        value="{{ $item['NUMVERBA'] }}"
