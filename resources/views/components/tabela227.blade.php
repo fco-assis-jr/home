@@ -111,7 +111,7 @@
         </thead>
         <tbody>
         @foreach ($dados_cursor as $index => $item)
-            <tr class="{{ ($item['VL_REEMBOLSO'] <= 0 || $item['VL_OFERTA'] <= 0) ? 'bg-red-400 text-white' : '' }}" wire:key="{{ $index }}">
+            <tr class="{{ ($item['VL_REEMBOLSO'] <= 0 || $item['VL_OFERTA'] <= 0) ? 'bg-red-400 text-white' : 'bg-blue-400 text-white' }}" wire:key="{{ $index }}">
                 <td class="text-uppercase text-center">
                     <div class="col-md-12">
                         <div class="row">
