@@ -203,7 +203,7 @@
                                 @endphp
 
                                 @if (count($margem_pvenda) > 1)
-                                    <span class="oferta-margem-pvenda">oferta</span>
+                                    <span class="oferta-margem-pvenda {{ ($item['VL_REEMBOLSO'] <= 0 || $item['VL_OFERTA'] <= 0) ? 'text-white' : 'text-red-500' }}">oferta</span>
                                     <span style="margin-left: -84px;margin-top: 10px;">{{ $margem_pvenda[0] }}</span>
                                 @else
                                     {{ $margem_pvenda[0] }}
