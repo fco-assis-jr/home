@@ -41,24 +41,36 @@
                         </button>
                     </div>
 
-                    <div style="{{ !empty($selected) ? 'display: block;' : 'display: none;' }}">
-                        <div id="select" class="pt-5 flex justify-center w3-animate-opacity"
-                             style="transition: 0.9s;">
-                            <select class="form-control" id="secao" style="width: 40%;"
-                                    wire:change="updateValue($event.target.value)">
-                                <option id="optionName" wire:ignore></option>
-                                @foreach($selected as $secao)
-                                    <option value="{{ $secao->id }}">{{ $secao->id }} | {{ $secao->descricao }}</option>
-                                @endforeach
-                            </select>
+                    @if(!empty($selected))
+                        <div>
+                            <div id="select" class="pt-5 flex justify-center w3-animate-opacity"
+                                 style="transition: 0.9s;">
+                                <select class="form-control" id="secao" style="width: 40%;"
+                                        wire:change="updateValue($event.target.value)">
+                                    <option id="optionName" wire:ignore></option>
+                                    @foreach($selected as $secao)
+                                        <option value="{{ $secao->id }}">{{ $secao->id }} | {{ $secao->descricao }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex justify-center p-4">
+                                <button wire:click="gerarRelatorio"
+                                        {{$buttonDisabled ? 'disabled' : ''}} class="btn btn-primary">
+                                    GERAR RELATÓRIO
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex justify-center p-4">
-                            <button wire:click="gerarRelatorio"
-                                    {{$buttonDisabled ? 'disabled' : ''}} class="btn btn-primary">
-                                GERAR RELATÓRIO
-                            </button>
-                        </div>
-                    </div>
+                    @else
+                        @if($messages)
+                            <div class="bs-component flex justify-center p-5">
+                                <div class="alert alert-dismissible alert-danger">
+                                    <button class="btn-close" type="button" data-bs-dismiss="alert"></button>
+                                    <strong>Ah, droga!</strong>
+                                    <a class="alert-link" href="/sugestoes/home" >Faça alguma sugestão</a> e tente enviar novamente.
+                                </div>
+                            </div>
+                        @endif
+                    @endif
                 </div>
             </div>
 
