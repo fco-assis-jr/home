@@ -137,7 +137,8 @@ class Avaliar extends Component
                                    (SELECT   s.status
                                       FROM   status_sugestao s
                                      WHERE   s.codsug = c.codsug AND s.codfornec = f.codfornec)
-                                       AS status_status
+                                       AS status_status,
+                                   i.descricaosug AS descricaosug
                             FROM                       bdc_sugestoesi@dbl200 i
                                                    JOIN
                                                        bdc_sugestoesc@dbl200 c
@@ -225,6 +226,7 @@ class Avaliar extends Component
                         $value2['NUMVERBA'] = $value['numverba'] ?? null;
                         $value2['INIOFERTA'] = $value['inioferta'] ?? null;
                         $value2['FIMOFERTA'] = $value['fimoferta'] ?? null;
+                        $value2['DESCRICAO_SUGESTAO'] = $value['descricaosug'] ?? null;
                         $this->dados_cursor[] = $value2;
                     }
                 }
@@ -282,6 +284,16 @@ class Avaliar extends Component
                 $this->toast('error', 'Erro ao atualizar item!');
             }
         }
+
+        DB::connection('oracle')->update(
+            "UPDATE bdc_sugestoesi@dbl200
+                SET DESCRICAOSUG = :descricao_sugestao
+              WHERE codfornec = :codfornec and codsug = :codsug",
+            [
+                'descricao_sugestao' => $this->dados_cursor[0]['DESCRICAO_SUGESTAO'],
+                'codfornec' => $this->dados_cursor[0]['CODFORNEC'],
+                'codsug' => $this->dados_cursor[0]['CODSUG']
+            ] );
 
         $this->VisualizarPDF($this->dados_cursor);
         $this->modalOpen($this->dados_cursor[0]['CODSUG']);
