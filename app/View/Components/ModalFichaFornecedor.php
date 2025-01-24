@@ -34,4 +34,5 @@ class ModalFichaFornecedor extends Component
     {
         return view('components.modalFichaFornecedor');
     }
+
 }

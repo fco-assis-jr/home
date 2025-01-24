@@ -18,6 +18,9 @@ class Home extends Component
     public $quantidade;
     public $data;
     public $codfornec;
+    public $codsecao;
+    public $codcategoria;
+    public $codprod;
     public $itens = [];
     public $indexEditando = null;
     public $pclib_fil = [];
@@ -77,19 +80,23 @@ class Home extends Component
                         (select SUBSTR (buscaprecos($this->codfilial,1,$codigo,SYSDATE ), 1,
                         INSTR (buscaprecos($this->codfilial,1,$codigo,SYSDATE ), ';', 1) - 1)
                         from dual) pvenda,
-                     e.codfilial,
-                     e.unidade,
-                     f.codfornec
-                  FROM       pcembalagem e
-                         INNER JOIN
-                             pcprodut p
-                         ON e.codprod = p.codprod
-                         INNER JOIN pcfornec f
-                         ON p.codfornec = f.codfornec
-                 WHERE   e.codauxiliar = ? and e.codfilial = ?
-                 AND NVL (e.pvenda, 0) > 0",
+                         e.codfilial,
+                         e.unidade,
+                         f.codfornec,
+                         p.codsec,
+                         p.codcategoria,
+                         p.codprod
+                      FROM       pcembalagem e
+                             INNER JOIN
+                                 pcprodut p
+                             ON e.codprod = p.codprod
+                             INNER JOIN pcfornec f
+                             ON p.codfornec = f.codfornec
+                     WHERE   e.codauxiliar = ? and e.codfilial = ?
+                     AND NVL (e.pvenda, 0) > 0",
                 [$codigo, $this->codfilial]
             );
+
 
             if (empty($produtos)) {
                 $this->toast('error', 'Produto não encontrado!');
@@ -100,6 +107,9 @@ class Home extends Component
             $this->valor = 'R$ ' . number_format($produtos[0]->pvenda, 2, ',', '.');
             $this->unid = $produtos[0]->unidade;
             $this->codfornec = $produtos[0]->codfornec;
+            $this->codsecao = $produtos[0]->codsec;
+            $this->codcategoria = $produtos[0]->codcategoria;
+            $this->codprod = $produtos[0]->codprod;
             $this->dispatch('nome-preenchido'); // Dispara um evento para focar no campo de quantidade
             $this->adicionarItem();
             $this->edit = false;
@@ -131,7 +141,10 @@ class Home extends Component
                 'valor' => $this->valor,
                 'data' => date_format(date_create($this->data), 'd/m/Y'),
                 'unid' => $this->unid,
-                'codfornec' => $this->codfornec
+                'codfornec' => $this->codfornec,
+                'codsecao' => $this->codsecao,
+                'codcategoria' => $this->codcategoria,
+                'codprod' => $this->codprod
             ];
         } else {
             // Edita o item existente
@@ -143,12 +156,15 @@ class Home extends Component
                 'valor' => $this->valor,
                 'data' => date_format(date_create($this->data), 'd/m/Y'),
                 'unid' => $this->unid,
-                'codfornec' => $this->codfornec
+                'codfornec' => $this->codfornec,
+                'codsecao' => $this->codsecao,
+                'codcategoria' => $this->codcategoria,
+                'codprod' => $this->codprod
             ];
             $this->indexEditando = null;
         }
         $this->selectedFilial = 'true';
-        $this->reset(['codigo', 'nome', 'quantidade', 'valor', 'data', 'codfornec']); // Limpa os campos do formulário
+        $this->reset(['codigo', 'nome', 'quantidade', 'valor', 'data', 'codfornec', 'codsecao', 'codcategoria', 'codprod']); // Limpa os campos do formulário
         $this->dispatch('NovoItem'); // Dispara um evento para focar no campo de código
     }
 
@@ -164,6 +180,9 @@ class Home extends Component
         $this->data = date('Y-m-d', strtotime(str_replace('/', '-', $item['data'])));
         $this->codfornec = $item['codfornec'];
         $this->codfilial = $item['filial'];
+        $this->codsecao = $item['codsecao'];
+        $this->codcategoria = $item['codcategoria'];
+        $this->codprod = $item['codprod'];
         $this->indexEditando = $index;
     }
 
@@ -217,8 +236,8 @@ class Home extends Component
             foreach ($this->itens as $item) {
                 $valor_produto = str_replace(['R$ ', '.', ','], ['', '', '.'], $item['valor']);
                 DB::connection('oracle')->insert('INSERT INTO bdc_sugestoesi@dbl200
-                    (codsugitem, codsug, codauxiliar, descricao,  valor_produto, data_vencimento, quantidade, status, UNID, codfornec)
-                    VALUES (bdc_sugestoes_seq.NEXTVAL@dbl200, ?, ?, ?, ?, TO_DATE(?, \'DD/MM/YYYY\'), ?, ?, ?, ?)',
+                    (codsugitem, codsug, codauxiliar, descricao,  valor_produto, data_vencimento, quantidade, status, UNID, codfornec, codsec, codcategoria, codprod)
+                    VALUES (bdc_sugestoes_seq.NEXTVAL@dbl200, ?, ?, ?, ?, TO_DATE(?, \'DD/MM/YYYY\'), ?, ?, ?, ?, ?, ?, ?)',
                     [
                         $codsug[0]->id,
                         $item['codigo'],
@@ -228,7 +247,10 @@ class Home extends Component
                         $item['quantidade'],
                         '0',
                         $item['unid'],
-                        $item['codfornec']
+                        $item['codfornec'],
+                        $item['codsecao'],
+                        $item['codcategoria'],
+                        $item['codprod']
                     ]
                 );
             }

@@ -11,7 +11,8 @@
             @foreach($contro->pccontroi as $Pccontroi)
                 @if($Pccontroi->codcontrole == 1 && $Pccontroi->acesso == 'S')
                     <li><a class="treeview-item" href="{{route('sugestoes.home')}}"><i class="icon bi bi-card-text"></i>Cadastrar Sugestão</a></li>
-                    <li><a class="treeview-item" href="{{route('sugestoes.solicitados')}}"><i class="icon bi bi-bar-chart-line-fill"></i> solicitados</a></li>
+                    <li><a class="treeview-item" href="{{route('sugestoes.solicitados')}}"><i class="icon bi bi-bar-chart-line-fill"></i> Solicitados</a></li>
+                    <li><a class="treeview-item" href="{{route('sugestoes.relatorios')}}"><i class="icon bi bi-filetype-pdf"></i> Relatorio</a></li>
                 @elseif($Pccontroi->codcontrole == 2 && $Pccontroi->acesso == 'S')
                     <li><a class="treeview-item" href="{{route('sugestoes.avaliar')}}"><i class="icon bi bi-graph-up-arrow"></i> Avaliar</a></li>
                 @endif

@@ -283,6 +283,9 @@
         <span>INICIO OFERTA: {{ \Carbon\Carbon::parse($itensc[0]['INIOFERTA'])->format('d/m/Y') }} </span><br>
         <span>FIM OFERTA: {{ \Carbon\Carbon::parse($itensc[0]['FIMOFERTA'])->format('d/m/Y') }} </span><br>
     </div>
+    <div style="position: absolute; margin-top: 50px; font-size: 10px; margin-left: 570px; width: 45%;">
+        <textarea rows="50" cols="100" style="text-align: justify; height: 400px; border: none; font-family: Arial, sans-serif;font-size: 13px;">     {{ $itensc[0]['DESCRICAO_SUGESTAO'] }}</textarea><br>
+    </div>
 </div>
 </body>
 </html>

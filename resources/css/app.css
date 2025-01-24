@@ -4,6 +4,7 @@
 @import './dataTables.dataTables.min.css';
 @import './main.css';
 
+
 .swal2-title{
     text-align: center !important;
 }
@@ -154,4 +155,22 @@
     margin-left: -21px;
     margin-top: 10px;
     font-weight: bold;
+}
+
+.w3-animate-opacity{animation:opac 0.8s}@keyframes opac{from{opacity:0} to{opacity:1}}
+
+.table-containerDados {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.table-containerDados thead {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 100;
+}
+
+.table-containerDados th {
+    border-top: none;
 }

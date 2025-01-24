@@ -22,7 +22,7 @@
 <!-- Navbar -->
 <header class="app-header">
     <a class="app-header__logo" href="/home" style="font-family: 'Arial Black', serif; font-size: 18px;">
-        <img src="{{ asset('images/logo.png') }}" style="width: 100px; height: 40px;">
+        <img alt="img" src="{{ asset('images/logo.png') }}" style="width: 100px; height: 40px;">
     </a>
     <!-- Sidebar toggle button -->
     <span x-on:click="open = !open" style="cursor: pointer" class="app-sidebar__toggle"
@@ -63,10 +63,6 @@
     </ul>
 </aside>
 
-{{--<div style="height: 100dvh; background-color: #0d1214">
-
-</div>--}}
-
 <main class="app-content">
     <x-livewire-alert::scripts/>
     <div class="cover">
@@ -74,34 +70,44 @@
     </div>
 </main>
 <script>
-   document.querySelector("html").classList.add('js');
+    document.querySelector("html").classList.add('js');
 
-document.addEventListener('livewire:init', () => {
-    const modalTableAvaliar = $('#ModalTableAvaliar');
-    const modalTableAvaliarOptions = $('#ModalTableAvaliarOptions');
-    const modalTableAvaliar227 = $('#ModalTableAvaliar227');
-    const modalEditItem = $('#ModalEditItem');
-    const exampleModalEditar = $('#exampleModalEditar');
-    const exampleModal = $('#exampleModal');
-    const modalOcorrencia = $('#ModalOcorrencia');
-    const modalDuplicarOcorrencia = $('#ModalDuplicarOcorrencia');
+    document.addEventListener('livewire:init', () => {
+        const modalTableAvaliar = $('#ModalTableAvaliar');
+        const modalTableAvaliarOptions = $('#ModalTableAvaliarOptions');
+        const modalTableAvaliar227 = $('#ModalTableAvaliar227');
+        const modalEditItem = $('#ModalEditItem');
+        const exampleModalEditar = $('#exampleModalEditar');
+        const exampleModal = $('#exampleModal');
+        const modalOcorrencia = $('#ModalOcorrencia');
+        const modalDuplicarOcorrencia = $('#ModalDuplicarOcorrencia');
 
-    Livewire.on('nome-preenchido', () => document.getElementById('quantidade').focus());
-    Livewire.on('NovoItem', () => document.getElementById('codigo').focus());
-    Livewire.on('ModalTableAvaliar', () => modalTableAvaliar.modal('show'));
-    Livewire.on('ModalOptions', () => modalTableAvaliarOptions.modal('show'));
-    Livewire.on('ModalTableAvaliar227', () => modalTableAvaliar227.modal('show'));
-    Livewire.on('ModalEditItem', () => modalEditItem.modal('show'));
-    Livewire.on('closeModalEditItem', () => modalEditItem.modal('hide'));
-    Livewire.on('abrir-nova-aba', data => window.open(data[0].url, '_blank'));
-    Livewire.on('AbrirModalEditar', () => exampleModalEditar.modal('show'));
-    Livewire.on('FecharModalEditar', () => exampleModalEditar.modal('hide'));
-    Livewire.on('FecharModalCadastro', () => exampleModal.modal('hide'));
-    Livewire.on('abrirModalOcorrencia', () => modalOcorrencia.modal('show'));
-    Livewire.on('OpenDuplicarModal', () => modalDuplicarOcorrencia.modal('show'));
-    Livewire.on('FecharDuplicarModal', () => modalOcorrencia.modal('hide'));
-    Livewire.on('FecharModalOcorrencia', () => modalDuplicarOcorrencia.modal('hide'));
-});
+        Livewire.on('nome-preenchido', () => document.getElementById('quantidade').focus());
+        Livewire.on('NovoItem', () => document.getElementById('codigo').focus());
+        Livewire.on('ModalTableAvaliar', () => modalTableAvaliar.modal('show'));
+        Livewire.on('ModalOptions', () => modalTableAvaliarOptions.modal('show'));
+        Livewire.on('ModalTableAvaliar227', () => modalTableAvaliar227.modal('show'));
+        Livewire.on('ModalEditItem', () => modalEditItem.modal('show'));
+        Livewire.on('closeModalEditItem', () => modalEditItem.modal('hide'));
+        Livewire.on('abrir-nova-aba', data => window.open(data[0].url, '_blank'));
+        Livewire.on('AbrirModalEditar', () => exampleModalEditar.modal('show'));
+        Livewire.on('FecharModalEditar', () => exampleModalEditar.modal('hide'));
+        Livewire.on('FecharModalCadastro', () => exampleModal.modal('hide'));
+        Livewire.on('abrirModalOcorrencia', () => modalOcorrencia.modal('show'));
+        Livewire.on('OpenDuplicarModal', () => modalDuplicarOcorrencia.modal('show'));
+        Livewire.on('FecharDuplicarModal', () => modalOcorrencia.modal('hide'));
+        Livewire.on('FecharModalOcorrencia', () => modalDuplicarOcorrencia.modal('hide'));
+
+        Livewire.on('flipForm', () => {
+            let div =  document.querySelector('.login-box');
+            if(div){
+                div.classList.toggle('flipped');
+                div.style.transition = 'all 1.5s';
+                div.style.minHeight = '700px';
+                return;
+            }
+        });
+    });
 
 
     function formatarMoeda(input) {
@@ -157,6 +163,7 @@ document.addEventListener('livewire:init', () => {
             }
         }
     });
+
 
 </script>
 </body>

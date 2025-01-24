@@ -13,8 +13,8 @@
         </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="container mt-4" wire:ignore.self>
+    <div class="row justify-content-center" wire:ignore>
+        <div class="container mt-4">
             <div class="tile">
                 <h3 class="tile-title">Tabela de Sugestões</h3>
                 <div class="table-responsive">

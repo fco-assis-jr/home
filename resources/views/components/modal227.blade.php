@@ -47,35 +47,47 @@
                             </div>
                         </div>
 
-                        <div class="row font-bold mb-2 col-md-12"
-                             style="font-size: 14px; display: grid; justify-content: center; align-items: center;">
-                            <div class="col-md-12">
-                                <label class="form-label">NUM. VERBA</label>
-                                <input type="text"
-                                       class="form-control {{ $item['NUMVERBA'] == '' ? 'is-invalid' : '' }}"
-                                       value="{{ $item['NUMVERBA'] }}"
-                                       id="numoferta{{ $item['CODFORNEC'] }}"
-                                       wire:change="updateValue2('NUMVERBA', $event.target.value)"
-                                >
-                            </div>
-                            <div class="col-md-12 flex gap-10">
-                                <div>
-                                    <label class="form-label">INICIO OFERTA</label>
-                                    <input type="date"
-                                           class="form-control {{ $item['INIOFERTA'] == '' ? 'is-invalid' : '' }}"
-                                           value="{{ $item['INIOFERTA'] }}"
-                                           id="inioferta{{ $item['CODFORNEC'] }}"
-                                           wire:change="updateValue2('INIOFERTA', $event.target.value)"
+                        <div class="flex justify-center gap-5">
+                            <div class="row font-bold mb-2"
+                                 style="font-size: 14px; display: grid; justify-content: center; align-items: center;">
+                                <div class="col-md-12">
+                                    <label class="form-label">NUM. VERBA</label>
+                                    <input type="text"
+                                           class="form-control {{ $item['NUMVERBA'] == '' ? 'is-invalid' : '' }}"
+                                           value="{{ $item['NUMVERBA'] }}"
+                                           id="numoferta{{ $item['CODFORNEC'] }}"
+                                           wire:change="updateValue2('NUMVERBA', $event.target.value)"
                                     >
                                 </div>
-                                <div>
-                                    <label class="form-label">FIM OFERTA</label>
-                                    <input type="date"
-                                           class="form-control {{ $item['FIMOFERTA'] == '' ? 'is-invalid' : '' }}"
-                                           value="{{ $item['FIMOFERTA'] }}"
-                                           id="fimoferta{{ $item['CODFORNEC'] }}"
-                                           wire:change="updateValue2('FIMOFERTA', $event.target.value)"
-                                    >
+                                <div class="col-md-12 flex gap-10">
+                                    <div>
+                                        <label class="form-label">INICIO OFERTA</label>
+                                        <input type="date"
+                                               class="form-control {{ $item['INIOFERTA'] == '' ? 'is-invalid' : '' }}"
+                                               value="{{ $item['INIOFERTA'] }}"
+                                               id="inioferta{{ $item['CODFORNEC'] }}"
+                                               wire:change="updateValue2('INIOFERTA', $event.target.value)"
+                                        >
+                                    </div>
+                                    <div>
+                                        <label class="form-label">FIM OFERTA</label>
+                                        <input type="date"
+                                               class="form-control {{ $item['FIMOFERTA'] == '' ? 'is-invalid' : '' }}"
+                                               value="{{ $item['FIMOFERTA'] }}"
+                                               id="fimoferta{{ $item['CODFORNEC'] }}"
+                                               wire:change="updateValue2('FIMOFERTA', $event.target.value)"
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="row font-bold mb-2"
+                                     style="font-size: 14px; display: grid; justify-content: center; align-items: center;">
+                                    <div class="col-md-12">
+                                        <label class="form-label"   >OBSERVAÇÃO</label>
+                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" cols="80" maxlength="2000"
+                                                  wire:change="updateValue2('DESCRICAO_SUGESTAO', $event.target.value)" >{{ $item['DESCRICAO_SUGESTAO'] }}</textarea>
+                                    </div>
                                 </div>
                             </div>
                         </div>
