@@ -18,6 +18,7 @@ class Relatorios extends Component
     public $descselecionado;
     public $buttonDisabled = true;
     public $dados_filtrados = [];
+    public $messages = false;
 
     public function filtrar($filtro, $coluna, $tabela, $escolhido)
     {
@@ -52,6 +53,10 @@ class Relatorios extends Component
             'codusuario' => auth()->user()->matricula
         ]);
 
+        if (empty($selectQuery)) {
+            $this->messages = true;
+            return;
+        }
         $this->selected = $selectQuery;
     }
 
