@@ -41,7 +41,7 @@ class Login extends Component
                 }
 
                 // Atribuir permissões ao usuário
-                Session::put('pccontro', $permissoes);
+                Session::put('bdc_controc', $permissoes);
 
                 // Busca Foto
                 $foto = $this->buscarFoto($user->matricula);
@@ -103,10 +103,10 @@ class Login extends Component
     {
         try {
             $permissoes = DB::connection('oracle')
-                ->table('pccontro')
+                ->table('bdc_controc')
                 ->where('codusuario', $user->matricula)
-                ->whereIn('codrotina',[1444,8177])
                 ->where('ACESSO', 'S')
+                ->orderBy('codmod', 'asc')
                 ->get();
 
             if ($permissoes->isEmpty()) {
@@ -128,9 +128,9 @@ class Login extends Component
             $resultado = [];
 
             foreach ($permissoes as $contro) {
-                $contro->pccontroi = DB::connection('oracle')
-                    ->table('pccontroi')
-                    ->where('codrotina', $contro->codrotina)
+                $contro->bdc_controi = DB::connection('oracle')
+                    ->table('bdc_controi')
+                    ->where('codmod', $contro->codmod)
                     ->where('codusuario', $matricula)
                     ->where('ACESSO', 'S')
                     ->get();
