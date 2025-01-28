@@ -24,6 +24,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tipos', App\Livewire\ocorrencias\Tipos::class)->name('tipos.ocorrencia');
 
     });
+    Route::prefix('permissoes')->namespace('App\Livewire\permissoes')->group(function () {
+        Route::get('/home', App\Livewire\permissoes\Home::class)->name('permissoes.home');
+
+    });
 });
 
 Route::get('/', App\Livewire\login\Login::class)->name('login');

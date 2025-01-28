@@ -5,8 +5,8 @@
     </div>
 
     <div class="row">
-        @foreach(session('pccontro') as $pccontro)
-            @if($pccontro->codrotina == 1444)
+        @foreach(session('bdc_controc') as $bdc_controc)
+            @if($bdc_controc->codmod == 1444)
                 <div class="col-md-6 col-lg-3">
                     <div class="widget-small primary coloured-icon"><i class="icon bi bi-people fs-1"></i>
                         <div class="info">
@@ -16,7 +16,7 @@
                     </div>
                 </div>
             @endif
-            @if($pccontro->codrotina == 8177)
+            @if($bdc_controc->codmod == 8177)
                 <div class="col-md-6 col-lg-3">
                     <div class="widget-small danger coloured-icon"><i class="icon bi bi-exclamation-circle fs-1"></i>
                         <div class="info">
@@ -29,8 +29,8 @@
         @endforeach
     </div>
 
-    @foreach(session('pccontro') as $pccontro)
-        @if($pccontro->codrotina == 8177)
+    @foreach(session('bdc_controc') as $bdc_controc)
+        @if($bdc_controc->codmod == 8177)
             <div class="col-md-6">
                 <div class="tile">
                     <h3 id="currentSelection" style="text-align: center; margin-top: 10px;">Tipos de Ocorrências</h3>

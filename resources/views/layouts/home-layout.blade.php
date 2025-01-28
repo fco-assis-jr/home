@@ -55,9 +55,9 @@
     </div>
     <ul class="app-menu">
         <li><a class="app-menu__item " href="{{route('home')}}"><i class="app-menu__icon bi bi-speedometer"></i><span class="app-menu__label">Dashboard</span></a></li>
-        @foreach(session('pccontro') as $contro)
-            @if(in_array($contro->codrotina, [1444, 8177]))
-                <x-menu-item :contro="$contro"/>
+        @foreach(session('bdc_controc') as $bdc_controc)
+            @if($bdc_controc->codmod)
+                <x-menu-item :contro="$bdc_controc"/>
             @endif
         @endforeach
     </ul>
