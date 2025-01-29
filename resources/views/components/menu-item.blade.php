@@ -16,7 +16,7 @@
         <ul class="treeview-menu">
             @foreach($contro->bdc_controi as $bdccontroi)
                 @if($bdccontroi->controle == 1 && $bdccontroi->acesso == 'S')
-                    <li><a class="treeview-item" href="{{route('sugestoes.home')}}"><i class="icon bi bi-card-text"></i>Cadastrar SugestÃ£o</a></li>
+                    <li><a class="treeview-item" href="{{route('sugestoes.home')}}"><i class="icon bi bi-card-text"></i>Cadastrar Sugestões</a></li>
                 @elseif($bdccontroi->controle == 2 && $bdccontroi->acesso == 'S')
                     <li><a class="treeview-item" href="{{route('sugestoes.solicitados')}}"><i class="icon bi bi-bar-chart-line-fill"></i> Solicitados</a></li>
                 @elseif($bdccontroi->controle == 4 && $bdccontroi->acesso == 'S')
