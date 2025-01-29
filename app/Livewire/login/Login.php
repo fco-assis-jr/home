@@ -133,6 +133,7 @@ class Login extends Component
                     ->where('codmod', $contro->codmod)
                     ->where('codusuario', $matricula)
                     ->where('ACESSO', 'S')
+                    ->orderBy('controle')
                     ->get();
 
                 $resultado[] = $contro;
