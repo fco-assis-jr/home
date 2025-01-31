@@ -27,7 +27,6 @@ class Avaliar extends Component
     protected $listeners = ['confirmar'];
 
 
-
     public function mount()
     {
         $this->home();
@@ -36,46 +35,53 @@ class Avaliar extends Component
     public function home()
     {
         $itens = DB::connection('oracle')->select(
-            "WITH status_sugestao
-                                AS (  SELECT   codsug,
-                                               CASE
-                                                   WHEN SUM(CASE
-                                                                WHEN    numverba IS NULL
-                                                                     OR TRIM (numverba) = ''
-                                                                     OR inioferta IS NULL
-                                                                     OR fimoferta IS NULL
-                                                                     OR vl_oferta <= 0
-                                                                     OR vl_reembolso <= 0
-                                                                THEN
-                                                                    1
-                                                                ELSE
-                                                                    0
-                                                            END) > 0
-                                                   THEN
-                                                       'INCOMPLETO'
-                                                   ELSE
-                                                       'COMPLETO'
-                                               END
-                                                   AS status
-                                        FROM   bdc_sugestoesi@dbl200
-                                    GROUP BY   codsug)
-                          SELECT   c.codsug,
-                                   p.nome,
-                                   TO_CHAR (c.data, 'DD/MM/YYYY HH24:MI:SS') AS data,
-                                   c.codfilial,
-                                   (SELECT   COUNT (1)
-                                      FROM   bdc_sugestoesi@dbl200 i
-                                     WHERE   i.codsug = c.codsug)
-                                       AS qtd_aguardando,
-                                   (SELECT   s.status
-                                      FROM   status_sugestao s
-                                     WHERE   s.codsug = c.codsug)
-                                       AS status
-                            FROM       bdc_sugestoesc@dbl200 c
-                                   INNER JOIN
-                                       pcempr p
-                                   ON p.matricula = c.codusuario
-                        ORDER BY   c.codsug DESC"
+            "WITH
+    STATUS_SUGESTAO
+    AS
+        (SELECT CODSUG,
+                CASE
+                    WHEN SUM(CASE
+                                 WHEN    NUMVERBA IS NULL
+                                      OR TRIM(NUMVERBA) = ''
+                                      OR INIOFERTA IS NULL
+                                      OR FIMOFERTA IS NULL
+                                      OR VL_OFERTA <= 0
+                                      OR VL_REEMBOLSO <= 0
+                                 THEN
+                                     1
+                                 ELSE
+                                     0
+                             END) > 0
+                    THEN
+                        'INCOMPLETO'
+                    ELSE
+                        'COMPLETO'
+                END AS STATUS
+         FROM BDC_SUGESTOESI@DBL200
+         GROUP BY CODSUG)
+SELECT C.CODSUG,
+       P.NOME,
+       TO_CHAR(C.DATA, 'DD/MM/YYYY HH24:MI:SS') AS DATA,
+       C.CODFILIAL,
+       (SELECT COUNT(1)
+        FROM BDC_SUGESTOESI@DBL200 I
+        WHERE I.CODSUG = C.CODSUG) AS QTD_AGUARDANDO,
+       (SELECT S.STATUS
+        FROM STATUS_SUGESTAO S
+        WHERE S.CODSUG = C.CODSUG) AS STATUS,
+       (SELECT ROUND(
+                   (COUNT(
+                    CASE
+                        WHEN NVL(I.VL_REEMBOLSO, 0) > 0
+                    AND NVL(I.VL_OFERTA, 0) > 0
+                    THEN
+                        1
+                    END) * 100.0 / COUNT(*))) AS PERCACEITE
+        FROM BDC_SUGESTOESI@DBL200 I
+        WHERE I.CODSUG = C.CODSUG) PERC_ACEITE
+FROM BDC_SUGESTOESC@DBL200 C
+     INNER JOIN PCEMPR P ON P.MATRICULA = C.CODUSUARIO
+ORDER BY C.CODSUG DESC"
         );
         $this->itensc = $itens;
     }
@@ -138,7 +144,18 @@ class Avaliar extends Component
                                       FROM   status_sugestao s
                                      WHERE   s.codsug = c.codsug AND s.codfornec = f.codfornec)
                                        AS status_status,
-                                   i.descricaosug AS descricaosug
+                                   i.descricaosug AS descricaosug,
+                   (SELECT ROUND(
+                               (COUNT(
+                                CASE
+                                    WHEN I.VL_REEMBOLSO IS NOT NULL
+                                AND I.VL_OFERTA IS NOT NULL
+                                THEN
+                                    1
+                                END) * 100.0 / COUNT(*))
+                               ) AS PERC_ACEITE
+                    FROM BDC_SUGESTOESI@DBL200 I
+                    WHERE I.CODSUG = C.CODSUG) PERC_ACEITE
                             FROM                       bdc_sugestoesi@dbl200 i
                                                    JOIN
                                                        bdc_sugestoesc@dbl200 c
@@ -293,7 +310,7 @@ class Avaliar extends Component
                 'descricao_sugestao' => $this->dados_cursor[0]['DESCRICAO_SUGESTAO'],
                 'codfornec' => $this->dados_cursor[0]['CODFORNEC'],
                 'codsug' => $this->dados_cursor[0]['CODSUG']
-            ] );
+            ]);
 
         $this->VisualizarPDF($this->dados_cursor);
         $this->modalOpen($this->dados_cursor[0]['CODSUG']);

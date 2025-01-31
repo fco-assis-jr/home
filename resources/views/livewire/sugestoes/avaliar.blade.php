@@ -38,37 +38,40 @@
                             <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
                                                              id="col1_smart" checked="checked"></td>
                         </tr>
-                        <tr style=" height: 0px;" id="filter_col3" data-column="2">
-                            <td class="text-uppercase font-bold">Codfilial</td>
-                            <td><input type="text" class="column_filter form-control h-6" id="col2_filter"></td>
-                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
-                                                             id="col2_regex"></td>
-                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
-                                                             id="col2_smart" checked="checked"></td>
-                        </tr>
                         <tr style=" height: 0px;" id="filter_col4" data-column="3">
-                            <td class="text-uppercase font-bold">Qt itens</td>
+                            <td class="text-uppercase font-bold">Codfilial</td>
                             <td><input type="text" class="column_filter form-control h-6" id="col3_filter"></td>
                             <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
                                                              id="col3_regex"></td>
                             <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
-                                                             id="col3_smart" checked="checked" autocomplete="off"></td>
+                                                             id="col3_smart" checked="checked"></td>
                         </tr>
                         <tr style=" height: 0px;" id="filter_col5" data-column="4">
-                            <td class="text-uppercase font-bold">Data</td>
+                            <td class="text-uppercase font-bold">Qt itens</td>
                             <td><input type="text" class="column_filter form-control h-6" id="col4_filter"></td>
                             <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
                                                              id="col4_regex"></td>
                             <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
-                                                             id="col4_smart" checked="checked"></td>
+                                                             id="col4_smart" checked="checked" autocomplete="off"></td>
+                        </tr>
+                        <tr style=" height: 0px;" id="filter_col6" data-column="5">
+                            <td class="text-uppercase font-bold">Data</td>
+                            <td><input type="text" class="column_filter form-control h-6" id="col5_filter"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col5_regex"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col5_smart" checked="checked"></td>
                         </tr>
                         <tr>
                             <td class="flex align-items-center justify-center gap-10" style="height: 25px;">
-                                <span class="text-red-400 font-bold hover:text-white cursor-pointer" title="ABERTAS" id="spanOpen"><i
+                                <span class="text-red-400 font-bold hover:text-white cursor-pointer" title="ABERTAS"
+                                      id="spanOpen"><i
                                         class="bi bi-circle-fill text-lg"></i></span>
-                                <span class="text-blue-400 font-bold hover:text-white cursor-pointer" title="FECHADO" id="spanClose"><i
+                                <span class="text-blue-400 font-bold hover:text-white cursor-pointer" title="FECHADO"
+                                      id="spanClose"><i
                                         class="bi bi-circle-fill text-lg"></i></span>
-                                <span class="text-white font-bold hover:text-white cursor-pointer" title="TODOS" id="spanAll"><i
+                                <span class="text-white font-bold hover:text-white cursor-pointer" title="TODOS"
+                                      id="spanAll"><i
                                         class="bi bi-circle-fill text-lg"></i></span>
                             </td>
                         </tr>
@@ -79,9 +82,9 @@
                         <tr class="text-uppercase text-center">
                             <th class="text-center">CODSUG</th>
                             <th class="text-center">NOME</th>
+                            <th class="text-center">STATUS%</th>
                             <th class="text-center">CODFILIAL</th>
                             <th class="text-center">QT ITENS</th>
-                            <th class="text-center">DATA CRIAÇÃO</th>
                             <th class="text-center">DATA CRIAÇÃO</th>
                             <th class="d-none">STATUS</th>
                         </tr>
@@ -90,12 +93,26 @@
                         @foreach ($itensc as $index => $item)
                             <tr class="text-uppercase text-center align-middle cursor-pointer {{ $item->status == 'COMPLETO' ? 'bg-blue-400 text-white' : 'bg-red-400 text-white' }}"
                                 wire:click="modalOpen({{$item->codsug}})">
-                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->codsug }}</td>
-                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->nome }}</td>
-                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->codfilial }}</td>
-                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->qtd_aguardando }}</td>
-                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->data }}</td>
-                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->data }}</td>
+                                <td class="text-center"
+                                    style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->codsug }}</td>
+                                <td class="text-center"
+                                    style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->nome }}</td>
+                                <td class="text-center">
+                                    <div class="relative w-full h-6 bg-gray-200 rounded">
+                                        <div
+                                            class="absolute top-0 left-0 h-6 rounded flex items-center justify-center"
+                                            style="width: {{ $item->perc_aceite == 0 ? '30px' : $item->perc_aceite . '%' }};
+                                            background-color: {{ $item->perc_aceite == 0 ? '#d1d5db' : ($item->status == 'COMPLETO' ? '#60a5fa' : '#f87171') }};">
+                                            <span class="text-sm" style="color: {{ $item->perc_aceite == 0 ? '#000' : '#fff' }};">{{ $item->perc_aceite }}%</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center"
+                                    style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->codfilial }}</td>
+                                <td class="text-center"
+                                    style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->qtd_aguardando }}</td>
+                                <td class="text-center"
+                                    style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->data }}</td>
                                 <td class="text-center d-none">{{ $item->status == 'COMPLETO' ? 'FECHADO' : 'ABERTO' }}</td>
                             </tr>
                         @endforeach
