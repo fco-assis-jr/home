@@ -24,6 +24,20 @@ class Solicitados extends Component
 
     public function mount()
     {
+
+        $vali = false;
+        $session = session('bdc_controc');
+        $hasCodmod800 = collect($session)->contains(function ($item) {
+            return $item->codmod == "800";
+        });
+
+        if ($hasCodmod800) {
+            $vali = true;
+        } else {
+            $vali = false;
+        }
+
+
         $itens = DB::connection('oracle')->select(
             "SELECT  distinct c.codsug,
                              p.nome,
@@ -32,7 +46,10 @@ class Solicitados extends Component
                              (select count(1) from bdc_sugestoesi@dbl200 i where i.codsug = c.codsug ) as qtd_aguardando
                       FROM   bdc_sugestoesc@dbl200 c,
                              pcempr p
-                     WHERE   p.matricula = c.codusuario and c.codusuario = :codusuario order by c.codsug desc ", ['codusuario' => auth()->user()->matricula]
+                     WHERE   p.matricula = c.codusuario
+                     and c.codusuario = :codusuario
+                     order by c.codsug desc ",
+            ['codusuario' => auth()->user()->matricula]
         );
         $this->itensc = $itens;
     }

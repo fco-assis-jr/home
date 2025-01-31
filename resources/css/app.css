@@ -174,3 +174,13 @@
 .table-containerDados th {
     border-top: none;
 }
+
+.filtrosTable {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+   /* background: linear-gradient(45deg, #1dc5a7, #3769c3);*/
+    background-color: #212529;
+    color: white;
+    /*border-radius: 5px;*/
+}
