@@ -27,7 +27,7 @@
                     <th>CODFORNEC</th>
                     <th>FORNECEDOR</th>
                     <th>QUANTIDADE</th>
-                    <th>PRAZOENTREGA</th>
+                    <th>STATUS</th>
                     <th>OBSERVACAO</th>
                 </tr>
                 </thead>
@@ -42,7 +42,17 @@
                             </div>
                         </td>
                         <td>{{ $dados['QUANTIDADE'] }}</td>
-                        <td>{{ $dados['PRAZOENTREGA'] }}</td>
+                        <td class="text-center">
+                            <div class="relative w-full h-6 bg-gray-200 rounded">
+                                <div
+                                    class="absolute top-0 left-0 h-6 rounded flex items-center justify-center"
+                                    style="width: {{ $dados['PERC_ACEITE'] == 0 ? '30px' : $dados['PERC_ACEITE'] . '%' }};
+                                            background-color:  {{ $dados['PERC_ACEITE'] == 0 ? '#d1d5db' : '#60a5fa' }};">
+                                    <span class="text-sm"
+                                          style="color: {{ $dados['PERC_ACEITE'] == 0 ? '#000' : '#fff' }};">{{ $dados['PERC_ACEITE'] }}%</span>
+                                </div>
+                            </div>
+                        </td>
                         <td class="text-left">{{ $dados['OBSERVACAO'] }}</td>
                     </tr>
                 @endforeach
