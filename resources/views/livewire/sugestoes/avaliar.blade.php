@@ -14,11 +14,67 @@
     </div>
 
     <div class="row justify-content-center" wire:ignore>
-        <div class="container mt-4">
+        <div class="container">
             <div class="tile">
-                <h3 class="tile-title">Tabela de Sugestões</h3>
+                <h3 class="tile-title text-center">TABELA DE SUGESTÕES</h3>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="sampleTable">
+                    <table style="width: 100%;">
+                        <thead>
+                        </thead>
+                        <tbody class="filtrosTable">
+                        <tr style=" height: 0px;" id="filter_col1" data-column="0">
+                            <td class="text-uppercase font-bold">Codsug</td>
+                            <td><input type="text" class="column_filter form-control h-6" id="col0_filter"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col0_regex"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col0_smart" checked="checked"></td>
+                        </tr>
+                        <tr style=" height: 0px;" id="filter_col2" data-column="1">
+                            <td class="text-uppercase font-bold">Nome</td>
+                            <td><input type="text" class="column_filter form-control h-6" id="col1_filter"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col1_regex"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col1_smart" checked="checked"></td>
+                        </tr>
+                        <tr style=" height: 0px;" id="filter_col3" data-column="2">
+                            <td class="text-uppercase font-bold">Codfilial</td>
+                            <td><input type="text" class="column_filter form-control h-6" id="col2_filter"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col2_regex"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col2_smart" checked="checked"></td>
+                        </tr>
+                        <tr style=" height: 0px;" id="filter_col4" data-column="3">
+                            <td class="text-uppercase font-bold">Qt itens</td>
+                            <td><input type="text" class="column_filter form-control h-6" id="col3_filter"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col3_regex"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col3_smart" checked="checked" autocomplete="off"></td>
+                        </tr>
+                        <tr style=" height: 0px;" id="filter_col5" data-column="4">
+                            <td class="text-uppercase font-bold">Data</td>
+                            <td><input type="text" class="column_filter form-control h-6" id="col4_filter"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col4_regex"></td>
+                            <td style="display: none"><input type="checkbox" class="column_filter form-control h-6"
+                                                             id="col4_smart" checked="checked"></td>
+                        </tr>
+                        <tr>
+                            <td class="flex align-items-center justify-center gap-10" style="height: 25px;">
+                                <span class="text-red-400 font-bold hover:text-white cursor-pointer" title="ABERTAS" id="spanOpen"><i
+                                        class="bi bi-circle-fill text-lg"></i></span>
+                                <span class="text-blue-400 font-bold hover:text-white cursor-pointer" title="FECHADO" id="spanClose"><i
+                                        class="bi bi-circle-fill text-lg"></i></span>
+                                <span class="text-white font-bold hover:text-white cursor-pointer" title="TODOS" id="spanAll"><i
+                                        class="bi bi-circle-fill text-lg"></i></span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-dark table-bordered table-hover" id="example">
                         <thead>
                         <tr class="text-uppercase text-center">
                             <th class="text-center">CODSUG</th>
@@ -27,18 +83,20 @@
                             <th class="text-center">QT ITENS</th>
                             <th class="text-center">DATA CRIAÇÃO</th>
                             <th class="text-center">DATA CRIAÇÃO</th>
+                            <th class="d-none">STATUS</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach ($itensc as $index => $item)
                             <tr class="text-uppercase text-center align-middle cursor-pointer {{ $item->status == 'COMPLETO' ? 'bg-blue-400 text-white' : 'bg-red-400 text-white' }}"
                                 wire:click="modalOpen({{$item->codsug}})">
-                                <td class="text-center">{{ $item->codsug }}</td>
-                                <td class="text-center">{{ $item->nome }}</td>
-                                <td class="text-center">{{ $item->codfilial }}</td>
-                                <td class="text-center">{{ $item->qtd_aguardando }}</td>
-                                <td class="text-center">{{ $item->data }}</td>
-                                <td class="text-center">{{ $item->data }}</td>
+                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->codsug }}</td>
+                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->nome }}</td>
+                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->codfilial }}</td>
+                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->qtd_aguardando }}</td>
+                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->data }}</td>
+                                <td class="text-center" style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->data }}</td>
+                                <td class="text-center d-none">{{ $item->status == 'COMPLETO' ? 'FECHADO' : 'ABERTO' }}</td>
                             </tr>
                         @endforeach
                         </tbody>
@@ -53,7 +111,7 @@
     <div class="modal fade backdrop-blur-lg" id="ModalTableAvaliar" tabindex="-1" aria-labelledby="exampleModalLabel"
          aria-hidden="true" wire:ignore.self>
         <div class="modal-dialog modal-dialog-centered modal-xl">
-            <x-modalFichaFornecedor :dados="$cabecario_227_agrupado" :nome="$nome" :filial="$filial" />
+            <x-modalFichaFornecedor :dados="$cabecario_227_agrupado" :nome="$nome" :filial="$filial"/>
         </div>
     </div>
 

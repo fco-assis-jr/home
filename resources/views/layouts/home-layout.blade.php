@@ -13,7 +13,6 @@
             integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/js/dataTables.min.js">
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -143,8 +142,85 @@
         });
     }
 
+    function filterGlobal(table) {
+        let filter = document.querySelector('#global_filter');
+        let regex = document.querySelector('#global_regex');
+        let smart = document.querySelector('#global_smart');
+
+        table.search(filter.value, regex.checked, smart.checked).draw();
+    }
+
+    function filterColumn(table, i) {
+        let filter = document.querySelector('#col' + i + '_filter');
+        let regex = document.querySelector('#col' + i + '_regex');
+        let smart = document.querySelector('#col' + i + '_smart');
+
+        table.column(i).search(filter.value, regex.checked, smart.checked).draw();
+    }
+
+    let table = new DataTable('#example', {
+        order: [[0, 'desc']],
+        scrollCollapse: true,
+        scrollY: '45vh',
+        layout: {
+            topStart: null,
+            topEnd: null,
+            top: null,
+            bottom: 'info',
+            bottomStart: 'pageLength',
+            bottomEnd: 'paging'
+        },
+        language: {
+            "sEmptyTable": "Nenhum dado disponível na tabela",
+            "sInfo": "Mostrando _START_ até _END_ de _TOTAL_ entradas",
+            "sInfoEmpty": "Mostrando 0 até 0 de 0 entradas",
+            "sInfoFiltered": "(filtrado de _MAX_ entradas no total)",
+            "sInfoPostFix": "",
+            "sInfoThousands": ".",
+            "sLengthMenu": "Mostrar _MENU_ entradas",
+            "sLoadingRecords": "Carregando...",
+            "sProcessing": "Processando...",
+            "sSearch": "Buscar:",
+            "sZeroRecords": "Nenhum registro encontrado",
+            "oPaginate": {
+                "sNext": "Próximo",
+                "sPrevious": "Anterior"
+            }
+        },
+    });
+
+    /*document.querySelector('.dt-search').style.display = 'none';*/
+    document.querySelectorAll('input.global_filter').forEach((el) => {
+        el.addEventListener(el.type === 'text' ? 'keyup' : 'change', () =>
+            filterGlobal(table)
+        );
+    });
+
+    document.querySelectorAll('input.column_filter').forEach((el) => {
+        let tr = el.closest('tr');
+        let columnIndex = tr.getAttribute('data-column');
+
+        el.addEventListener(el.type === 'text' ? 'keyup' : 'change', () =>
+            filterColumn(table, columnIndex)
+        );
+    });
+
+    document.querySelector('#spanOpen').addEventListener('click', () => {
+        table.column(6).search('ABERTO').draw();
+    });
+
+    document.querySelector('#spanClose').addEventListener('click', () => {
+        table.column(6).search('FECHADO').draw();
+    });
+
+    document.querySelector('#spanAll').addEventListener('click', () => {
+        table.column(6).search('').draw();
+    });
+
     $('#sampleTable').DataTable({
         order: [[0, 'desc']],
+        scrollCollapse: true,
+        scrollY: '50vh',
         language: {
             "sEmptyTable": "Nenhum dado disponível na tabela",
             "sInfo": "Mostrando _START_ até _END_ de _TOTAL_ entradas",
