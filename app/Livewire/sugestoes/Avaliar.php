@@ -36,179 +36,195 @@ class Avaliar extends Component
     public function home()
     {
         $itens = DB::connection('oracle')->select(
-            "WITH status_sugestao
-                                AS (  SELECT   codsug,
-                                               CASE
-                                                   WHEN SUM(CASE
-                                                                WHEN    numverba IS NULL
-                                                                     OR TRIM (numverba) = ''
-                                                                     OR inioferta IS NULL
-                                                                     OR fimoferta IS NULL
-                                                                     OR vl_oferta <= 0
-                                                                     OR vl_reembolso <= 0
-                                                                THEN
-                                                                    1
-                                                                ELSE
-                                                                    0
-                                                            END) > 0
-                                                   THEN
-                                                       'INCOMPLETO'
-                                                   ELSE
-                                                       'COMPLETO'
-                                               END
-                                                   AS status
-                                        FROM   bdc_sugestoesi@dbl200
-                                    GROUP BY   codsug)
-                          SELECT   c.codsug,
-                                   p.nome,
-                                   TO_CHAR (c.data, 'DD/MM/YYYY HH24:MI:SS') AS data,
-                                   c.codfilial,
-                                   (SELECT   COUNT (1)
-                                      FROM   bdc_sugestoesi@dbl200 i
-                                     WHERE   i.codsug = c.codsug)
-                                       AS qtd_aguardando,
-                                   (SELECT   s.status
-                                      FROM   status_sugestao s
-                                     WHERE   s.codsug = c.codsug)
-                                       AS status
-                            FROM       bdc_sugestoesc@dbl200 c
-                                   INNER JOIN
-                                       pcempr p
-                                   ON p.matricula = c.codusuario
-                        ORDER BY   c.codsug DESC"
+            "WITH
+    STATUS_SUGESTAO
+    AS
+        (SELECT CODSUG,
+                CASE
+                    WHEN SUM(CASE
+                                 WHEN    NUMVERBA IS NULL
+                                      OR TRIM(NUMVERBA) = ''
+                                      OR INIOFERTA IS NULL
+                                      OR FIMOFERTA IS NULL
+                                      OR VL_OFERTA <= 0
+                                      OR VL_REEMBOLSO <= 0
+                                 THEN
+                                     1
+                                 ELSE
+                                     0
+                             END) > 0
+                    THEN
+                        'INCOMPLETO'
+                    ELSE
+                        'COMPLETO'
+                END AS STATUS
+         FROM BDC_SUGESTOESI@DBL200
+         GROUP BY CODSUG)
+SELECT C.CODSUG,
+       P.NOME,
+       TO_CHAR(C.DATA, 'DD/MM/YYYY HH24:MI:SS') AS DATA,
+       C.CODFILIAL,
+       (SELECT COUNT(1)
+        FROM BDC_SUGESTOESI@DBL200 I
+        WHERE I.CODSUG = C.CODSUG) AS QTD_AGUARDANDO,
+       (SELECT S.STATUS
+        FROM STATUS_SUGESTAO S
+        WHERE S.CODSUG = C.CODSUG) AS STATUS,
+       (SELECT CASE
+                   WHEN COUNT(DISTINCT I1.CODFORNEC) = 0
+                   THEN
+                       0
+                   ELSE
+                       ROUND(
+                           COUNT(
+                           DISTINCT CASE
+                               WHEN NVL(I1.VL_REEMBOLSO, 0) > 0
+                           AND NVL(I1.VL_OFERTA, 0) > 0
+                           THEN
+                               I1.CODFORNEC
+                           END) * 100.0 / COUNT(DISTINCT I1.CODFORNEC))
+               END
+        FROM BDC_SUGESTOESI@DBL200 I1
+        WHERE I1.CODSUG = C.CODSUG) AS PERC_ACEITE
+FROM BDC_SUGESTOESC@DBL200 C
+     INNER JOIN PCEMPR P ON P.MATRICULA = C.CODUSUARIO
+ORDER BY C.CODSUG DESC"
         );
         $this->itensc = $itens;
     }
 
-    public function modalOpen($index)
-    {
-        try {
-            $produtos = DB::connection('oracle')->select(
-                "
-                        WITH status_sugestao
-                                AS (  SELECT   codfornec,
-                                               codsug,
-                                               CASE
-                                                   WHEN SUM(CASE
-                                                                WHEN    numverba IS NULL
-                                                                     OR TRIM (numverba) = ''
-                                                                     OR inioferta IS NULL
-                                                                     OR fimoferta IS NULL
-                                                                     OR vl_oferta <= 0
-                                                                     OR vl_reembolso <= 0
-                                                                THEN
-                                                                    1
-                                                                ELSE
-                                                                    0
-                                                            END) > 0
-                                                   THEN
-                                                       'INCOMPLETO'
-                                                   ELSE
-                                                       'COMPLETO'
-                                               END
-                                                   AS status
-                                        FROM   bdc_sugestoesi@dbl200
-                                       WHERE   codsug = :codsug
-                                    GROUP BY   codfornec, codsug)
-                          SELECT   DISTINCT
-                                   c.codsug,
-                                   e.codprod,
-                                   TO_CHAR (c.data, 'DD/MM/YYYY HH24:MI:SS') AS data,
-                                   i.codsugitem,
-                                   i.codsug,
-                                   i.codauxiliar,
-                                   i.descricao,
-                                   i.valor_produto,
-                                   NVL (i.valor_sugerido, 0) AS valor_sugerido,
-                                   TO_CHAR (i.data_vencimento, 'DD/MM/YYYY') AS data_vencimento,
-                                   i.quantidade,
-                                   i.status,
-                                   i.unid,
-                                   c.codfilial,
-                                   p.codauxiliar AS prod_codauxiliar,
-                                   emp.nome,
-                                   f.codfornec,
-                                   f.fornecedor AS fornecedor,
-                                   i.vl_reembolso,
-                                   i.vl_oferta,
-                                   i.numverba,
-                                   TO_CHAR (i.inioferta, 'YYYY-MM-DD') AS inioferta,
-                                   TO_CHAR (i.fimoferta, 'YYYY-MM-DD') AS fimoferta,
-                                   (SELECT   s.status
-                                      FROM   status_sugestao s
-                                     WHERE   s.codsug = c.codsug AND s.codfornec = f.codfornec)
-                                       AS status_status,
-                                   i.descricaosug AS descricaosug
-                            FROM                       bdc_sugestoesi@dbl200 i
-                                                   JOIN
-                                                       bdc_sugestoesc@dbl200 c
-                                                   ON i.codsug = c.codsug
-                                               JOIN
-                                                   pcembalagem e
-                                               ON e.codauxiliar = i.codauxiliar
-                                           JOIN
-                                               pcprodut p
-                                           ON p.codprod = e.codprod
-                                       JOIN
-                                           pcempr emp
-                                       ON c.codusuario = emp.matricula
-                                   JOIN
-                                       pcfornec f
-                                   ON f.codfornec = i.codfornec
-                           WHERE   c.codsug = :codsug
-                        ORDER BY   i.codsugitem ASC",
-                ['codsug' => $index]
-            );
+public function modalOpen($index)
+{
+    try {
+        // Consulta os produtos do banco de dados
+        $produtos = DB::connection('oracle')->select(
+            "
+            WITH status_sugestao AS (
+                SELECT codfornec,
+                       codsug,
+                       CASE
+                           WHEN SUM(
+                               CASE
+                                   WHEN numverba IS NULL
+                                        OR TRIM(numverba) = ''
+                                        OR inioferta IS NULL
+                                        OR fimoferta IS NULL
+                                        OR vl_oferta <= 0
+                                        OR vl_reembolso <= 0
+                                   THEN 1 ELSE 0
+                               END
+                           ) > 0 THEN 'INCOMPLETO'
+                           ELSE 'COMPLETO'
+                       END AS status
+                FROM bdc_sugestoesi@dbl200
+                WHERE codsug = :codsug
+                GROUP BY codfornec, codsug
+            )
+            SELECT DISTINCT
+                   c.codsug,
+                   e.codprod,
+                   TO_CHAR(c.data, 'DD/MM/YYYY HH24:MI:SS') AS data,
+                   i.codsugitem,
+                   i.codsug,
+                   i.codauxiliar,
+                   i.descricao,
+                   i.valor_produto,
+                   NVL(i.valor_sugerido, 0) AS valor_sugerido,
+                   TO_CHAR(i.data_vencimento, 'DD/MM/YYYY') AS data_vencimento,
+                   i.quantidade,
+                   i.status,
+                   i.unid,
+                   c.codfilial,
+                   emp.nome,
+                   f.codfornec,
+                   f.fornecedor AS fornecedor,
+                   f.observacao AS fornecedor_observacao, -- Adicionado aqui
+                   i.vl_reembolso,
+                   i.vl_oferta,
+                   i.numverba,
+                   TO_CHAR(i.inioferta, 'YYYY-MM-DD') AS inioferta,
+                   TO_CHAR(i.fimoferta, 'YYYY-MM-DD') AS fimoferta,
+                   (SELECT s.status
+                    FROM status_sugestao s
+                    WHERE s.codsug = c.codsug AND s.codfornec = f.codfornec) AS status_status,
+                   NVL((TRUNC(i.fimoferta) - TRUNC(i.inioferta)), 0) AS prazoentrega
+            FROM bdc_sugestoesi@dbl200 i
+                 JOIN bdc_sugestoesc@dbl200 c ON i.codsug = c.codsug
+                 JOIN pcembalagem e ON e.codauxiliar = i.codauxiliar
+                 JOIN pcempr emp ON c.codusuario = emp.matricula
+                 JOIN pcfornec f ON f.codfornec = i.codfornec
+            WHERE c.codsug = :codsug
+            ORDER BY i.codsugitem ASC",
+            ['codsug' => $index]
+        );
 
-            $this->nome = $produtos[0]->nome;
-            $this->filial = $produtos[0]->codfilial;
-            $this->data_criacao = $produtos[0]->data;
-            $this->dispatch('ModalTableAvaliar');
+        // Configura as informações principais
+        $this->nome = $produtos[0]->nome ?? 'N/A';
+        $this->filial = $produtos[0]->codfilial ?? 'N/A';
+        $this->data_criacao = $produtos[0]->data ?? 'N/A';
+        $this->dispatch('ModalTableAvaliar');
 
-            $produtos_com_dados = [];
+        // Processa os dados dos produtos
+        $produtos_com_dados = [];
+        foreach ($produtos as $produto) {
+            $produto = (array) $produto;
 
-            foreach ($produtos as $produto) {
-                // Busca os dados adicionais para o produto
-                $resultado = $this->buscarProdutoRotina($produto->codprod, $produto->codfilial);
+            // Trate valores nulos
+            $produto['vl_reembolso'] = $produto['vl_reembolso'] ?? 0;
+            $produto['vl_oferta'] = $produto['vl_oferta'] ?? 0;
 
-                // Mesclar os dados do produto com os resultados encontrados (ou vazio caso não haja dados)
-                $produto_com_dados = (array)$produto; // Converte o produto (caso seja objeto) para array
-                $produto_com_dados['consulta_dados'] = !empty($resultado) ? $resultado : null;
+            // Busca dados adicionais
+            $resultado = $this->buscarProdutoRotina($produto['codprod'], $produto['codfilial']);
+            $produto['consulta_dados'] = $resultado ?: null;
 
-                $produtos_com_dados[] = $produto_com_dados;
-            }
-
-            $this->itensi = $produtos_com_dados;
-
-            // agora vamos entrar dentro do array consulta_dados e vamos agrupar o CODFORNEC,FORNECEDOR,PRAZOENTREGA,OBSERVACAO e vamos colocar dentro do array $cabecario_227_agrupado
-
-            $this->cabecario_227_agrupado = [];
-            foreach ($this->itensi as $key => $value) {
-                if (!empty($value['consulta_dados'])) {
-                    foreach ($value['consulta_dados'] as $key2 => $value2) {
-                        if (!isset($this->cabecario_227_agrupado[$value2['CODFORNEC']])) {
-                            // Inicializa o fornecedor na primeira vez
-                            $this->cabecario_227_agrupado[$value2['CODFORNEC']] = [
-                                'CODFORNEC' => $value2['CODFORNEC'],
-                                'FORNECEDOR' => $value2['FORNECEDOR'],
-                                'PRAZOENTREGA' => $value2['PRAZOENTREGA'],
-                                'OBSERVACAO' => $value2['OBSERVACAO'],
-                                'QUANTIDADE' => 0, // Inicializa a quantidade
-                                'ITENS_STATUS' => $value['status_status'],
-                                'DATACRIACAO' => $value['data'],
-                            ];
-                        }
-
-                        // Incrementa a quantidade para este fornecedor
-                        $this->cabecario_227_agrupado[$value2['CODFORNEC']]['QUANTIDADE']++;
-                    }
-                }
-            }
-
-        } catch (\Exception $e) {
-            $this->toast('error', 'Erro ao buscar produto!');
+            $produtos_com_dados[] = $produto;
         }
+        $this->itensi = $produtos_com_dados;
+
+        // Agrupamento por fornecedor
+        $this->cabecario_227_agrupado = [];
+        foreach ($this->itensi as $produto) {
+            $codfornec = $produto['codfornec'];
+
+            if (!isset($this->cabecario_227_agrupado[$codfornec])) {
+                $prazo_entrega = $produto['prazoentrega'] ?? 0; // Ajusta o prazo de entrega
+
+                $this->cabecario_227_agrupado[$codfornec] = [
+                    'CODFORNEC' => $codfornec,
+                    'FORNECEDOR' => $produto['fornecedor'] ?? 'N/A',
+                    'PRAZOENTREGA' => $prazo_entrega,
+                    'OBSERVACAO' => $produto['fornecedor_observacao'] ?? 'Sem Observação', // Atualizado aqui
+                    'QUANTIDADE' => 0,
+                    'COMPLETAS' => 0,
+                    'PERC_ACEITE' => 0,
+                    'ITENS_STATUS' => $produto['status_status'] ?? 'N/A', // Incluído aqui
+                    'DATACRIACAO' => $produto['data'],
+                ];
+            }
+
+            // Incrementa a quantidade total
+            $this->cabecario_227_agrupado[$codfornec]['QUANTIDADE']++;
+
+            // Verifica se o produto está completo
+            if (
+                $produto['vl_reembolso'] > 0 &&
+                $produto['vl_oferta'] > 0
+            ) {
+                $this->cabecario_227_agrupado[$codfornec]['COMPLETAS']++;
+            }
+        }
+
+        // Calcula a porcentagem de aceitação para cada fornecedor
+        foreach ($this->cabecario_227_agrupado as &$fornecedor) {
+            $quantidade = $fornecedor['QUANTIDADE'];
+            $completas = $fornecedor['COMPLETAS'];
+            $fornecedor['PERC_ACEITE'] = $quantidade > 0 ? round(($completas / $quantidade) * 100, 2) : 0;
+        }
+
+    } catch (\Exception $e) {
+        $this->toast('error', 'Erro ao buscar produto!');
     }
+}
 
     public function modalOpenOptions($codfornec)
     {
