@@ -222,7 +222,7 @@ public function modalOpen($index)
         }
 
     } catch (\Exception $e) {
-        $this->toast('error', 'Erro ao buscar produto!');
+        $this->toast('error', 'Erro ao buscar produtoa!');
     }
 }
 
