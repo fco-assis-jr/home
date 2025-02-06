@@ -35,7 +35,7 @@
                 @foreach ($cabecario_227_agrupado as $codfornec => $dados)
                     <tr class="text-uppercase text-center align-middle cursor-pointer {{ $dados['ITENS_STATUS'] == 'COMPLETO' ? 'bg-blue-400 text-white' : 'bg-red-400 text-white' }}"
                         wire:click.prevent="modalOpenOptions({{ $dados['CODFORNEC'] }})">
-                        <td>{{ $dados['CODFORNEC'] }}</td>
+                        <td>{{ $dados['CODFORNEC'] }} {{ $dados['ITENS_STATUS'] }}</td>
                         <td class="truncate text-left" title="{{ $dados['FORNECEDOR'] }}">
                             <div style="width: 100%;">
                                 {{ $dados['FORNECEDOR'] }}

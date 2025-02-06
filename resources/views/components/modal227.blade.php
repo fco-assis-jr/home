@@ -53,7 +53,7 @@
                                 <div class="col-md-12">
                                     <label class="form-label">NUM. VERBA</label>
                                     <input type="text"
-                                           class="form-control {{ $item['NUMVERBA'] == '' ? 'is-invalid' : '' }}"
+                                           class="form-control"
                                            value="{{ $item['NUMVERBA'] }}"
                                            id="numoferta{{ $item['CODFORNEC'] }}"
                                            wire:change="updateValue2('NUMVERBA', $event.target.value)"
@@ -63,7 +63,7 @@
                                     <div>
                                         <label class="form-label">INICIO OFERTA</label>
                                         <input type="date"
-                                               class="form-control {{ $item['INIOFERTA'] == '' ? 'is-invalid' : '' }}"
+                                               class="form-control"
                                                value="{{ $item['INIOFERTA'] }}"
                                                id="inioferta{{ $item['CODFORNEC'] }}"
                                                wire:change="updateValue2('INIOFERTA', $event.target.value)"
@@ -72,7 +72,7 @@
                                     <div>
                                         <label class="form-label">FIM OFERTA</label>
                                         <input type="date"
-                                               class="form-control {{ $item['FIMOFERTA'] == '' ? 'is-invalid' : '' }}"
+                                               class="form-control"
                                                value="{{ $item['FIMOFERTA'] }}"
                                                id="fimoferta{{ $item['CODFORNEC'] }}"
                                                wire:change="updateValue2('FIMOFERTA', $event.target.value)"
