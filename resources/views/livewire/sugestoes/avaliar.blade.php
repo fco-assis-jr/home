@@ -98,12 +98,22 @@
                                 <td class="text-center"
                                     style="color: {{ $item->status == 'COMPLETO' ? '#60a5fa' : '#f87171' }}">{{ $item->nome }}</td>
                                 <td class="text-center">
-                                    <div class="relative w-full h-6 bg-gray-200 rounded">
+                                    <div class="relative w-full h-5 bg-gray-500 rounded overflow-hidden shadow-md">
+                                        <!-- Porcentagem fixa no centro -->
+                                        <span
+                                            class="absolute inset-0 flex items-center justify-center text-sm font-bold"
+                                            style="
+                                            color: #fff;
+                                            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+                                            z-index: 10;
+                                        ">{{ $item->perc_aceite }}%</span>
+                                        <!-- Barra de progresso -->
                                         <div
-                                            class="absolute top-0 left-0 h-6 rounded flex items-center justify-center"
-                                            style="width: {{ $item->perc_aceite == 0 ? '30px' : $item->perc_aceite . '%' }};
-                                            background-color: {{ $item->perc_aceite == 0 ? '#d1d5db' : ($item->status == 'COMPLETO' ? '#60a5fa' : '#f87171') }};">
-                                            <span class="text-sm" style="color: {{ $item->perc_aceite == 0 ? '#000' : '#fff' }};">{{ $item->perc_aceite }}%</span>
+                                            class="absolute top-0 left-0 h-full rounded transition-all"
+                                            style="
+                                            width: {{ $item->perc_aceite == 0 ? '15%' : $item->perc_aceite . '%' }};
+                                            background-color: {{ $item->perc_aceite == 0 ? '#a3a3a3' : ($item->status == 'COMPLETO' ? '#60a5fa' : '#f87171') }};
+                                            z-index: 5;">
                                         </div>
                                     </div>
                                 </td>

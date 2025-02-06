@@ -84,9 +84,10 @@
                                 <div class="row font-bold mb-2"
                                      style="font-size: 14px; display: grid; justify-content: center; align-items: center;">
                                     <div class="col-md-12">
-                                        <label class="form-label"   >OBSERVAÇÃO</label>
-                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" cols="80" maxlength="2000"
-                                                  wire:change="updateValue2('DESCRICAO_SUGESTAO', $event.target.value)" >{{ $item['DESCRICAO_SUGESTAO'] }}</textarea>
+                                        <label class="form-label">OBSERVAÇÃO</label>
+                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="5"
+                                                  cols="80" maxlength="2000"
+                                                  wire:change="updateValue2('DESCRICAO_SUGESTAO', $event.target.value)">{{ $item['DESCRICAO_SUGESTAO'] }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -104,6 +105,11 @@
         <button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
                 wire:click.prevent="salvar_dados()">Salvar
         </button>
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+        @if(!empty($dados_cursor))
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" wire:click="modalOpen({{$dados_cursor[0]['CODSUG']}})">Fechar</button>
+            )
+        @endif
+
+
     </div>
 </div>
