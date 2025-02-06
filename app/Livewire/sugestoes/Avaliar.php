@@ -27,7 +27,6 @@ class Avaliar extends Component
     protected $listeners = ['confirmar'];
 
 
-
     public function mount()
     {
         $this->home();
@@ -42,12 +41,7 @@ class Avaliar extends Component
         (SELECT CODSUG,
                 CASE
                     WHEN SUM(CASE
-                                 WHEN    NUMVERBA IS NULL
-                                      OR TRIM(NUMVERBA) = ''
-                                      OR INIOFERTA IS NULL
-                                      OR FIMOFERTA IS NULL
-                                      OR VL_OFERTA <= 0
-                                      OR VL_REEMBOLSO <= 0
+                                 WHEN    status = 0
                                  THEN
                                      1
                                  ELSE
@@ -93,24 +87,19 @@ ORDER BY C.CODSUG DESC"
         $this->itensc = $itens;
     }
 
-public function modalOpen($index)
-{
-    try {
-        // Consulta os produtos do banco de dados
-        $produtos = DB::connection('oracle')->select(
-            "
+    public function modalOpen($index)
+    {
+        try {
+            // Consulta os produtos do banco de dados
+            $produtos = DB::connection('oracle')->select(
+                "
             WITH status_sugestao AS (
                 SELECT codfornec,
                        codsug,
                        CASE
                            WHEN SUM(
                                CASE
-                                   WHEN numverba IS NULL
-                                        OR TRIM(numverba) = ''
-                                        OR inioferta IS NULL
-                                        OR fimoferta IS NULL
-                                        OR vl_oferta <= 0
-                                        OR vl_reembolso <= 0
+                                   WHEN status = 0
                                    THEN 1 ELSE 0
                                END
                            ) > 0 THEN 'INCOMPLETO'
@@ -155,76 +144,76 @@ public function modalOpen($index)
                  JOIN pcfornec f ON f.codfornec = i.codfornec
             WHERE c.codsug = :codsug
             ORDER BY i.codsugitem ASC",
-            ['codsug' => $index]
-        );
+                ['codsug' => $index]
+            );
 
-        // Configura as informações principais
-        $this->nome = $produtos[0]->nome ?? 'N/A';
-        $this->filial = $produtos[0]->codfilial ?? 'N/A';
-        $this->data_criacao = $produtos[0]->data ?? 'N/A';
-        $this->dispatch('ModalTableAvaliar');
+            // Configura as informações principais
+            $this->nome = $produtos[0]->nome ?? 'N/A';
+            $this->filial = $produtos[0]->codfilial ?? 'N/A';
+            $this->data_criacao = $produtos[0]->data ?? 'N/A';
+            $this->dispatch('ModalTableAvaliar');
 
-        // Processa os dados dos produtos
-        $produtos_com_dados = [];
-        foreach ($produtos as $produto) {
-            $produto = (array) $produto;
+            // Processa os dados dos produtos
+            $produtos_com_dados = [];
+            foreach ($produtos as $produto) {
+                $produto = (array)$produto;
 
-            // Trate valores nulos
-            $produto['vl_reembolso'] = $produto['vl_reembolso'] ?? 0;
-            $produto['vl_oferta'] = $produto['vl_oferta'] ?? 0;
+                // Trate valores nulos
+                $produto['vl_reembolso'] = $produto['vl_reembolso'] ?? 0;
+                $produto['vl_oferta'] = $produto['vl_oferta'] ?? 0;
 
-            // Busca dados adicionais
-            $resultado = $this->buscarProdutoRotina($produto['codprod'], $produto['codfilial']);
-            $produto['consulta_dados'] = $resultado ?: null;
+                // Busca dados adicionais
+                $resultado = $this->buscarProdutoRotina($produto['codprod'], $produto['codfilial']);
+                $produto['consulta_dados'] = $resultado ?: null;
 
-            $produtos_com_dados[] = $produto;
-        }
-        $this->itensi = $produtos_com_dados;
+                $produtos_com_dados[] = $produto;
+            }
+            $this->itensi = $produtos_com_dados;
 
-        // Agrupamento por fornecedor
-        $this->cabecario_227_agrupado = [];
-        foreach ($this->itensi as $produto) {
-            $codfornec = $produto['codfornec'];
+            // Agrupamento por fornecedor
+            $this->cabecario_227_agrupado = [];
+            foreach ($this->itensi as $produto) {
+                $codfornec = $produto['codfornec'];
 
-            if (!isset($this->cabecario_227_agrupado[$codfornec])) {
-                $prazo_entrega = $produto['prazoentrega'] ?? 0; // Ajusta o prazo de entrega
+                if (!isset($this->cabecario_227_agrupado[$codfornec])) {
+                    $prazo_entrega = $produto['prazoentrega'] ?? 0; // Ajusta o prazo de entrega
 
-                $this->cabecario_227_agrupado[$codfornec] = [
-                    'CODFORNEC' => $codfornec,
-                    'FORNECEDOR' => $produto['fornecedor'] ?? 'N/A',
-                    'PRAZOENTREGA' => $prazo_entrega,
-                    'OBSERVACAO' => $produto['fornecedor_observacao'] ?? 'Sem Observação', // Atualizado aqui
-                    'QUANTIDADE' => 0,
-                    'COMPLETAS' => 0,
-                    'PERC_ACEITE' => 0,
-                    'ITENS_STATUS' => $produto['status_status'] ?? 'N/A', // Incluído aqui
-                    'DATACRIACAO' => $produto['data'],
-                ];
+                    $this->cabecario_227_agrupado[$codfornec] = [
+                        'CODFORNEC' => $codfornec,
+                        'FORNECEDOR' => $produto['fornecedor'] ?? 'N/A',
+                        'PRAZOENTREGA' => $prazo_entrega,
+                        'OBSERVACAO' => $produto['fornecedor_observacao'] ?? 'Sem Observação', // Atualizado aqui
+                        'QUANTIDADE' => 0,
+                        'COMPLETAS' => 0,
+                        'PERC_ACEITE' => 0,
+                        'ITENS_STATUS' => $produto['status_status'] ?? 'N/A', // Incluído aqui
+                        'DATACRIACAO' => $produto['data'],
+                    ];
+                }
+
+                // Incrementa a quantidade total
+                $this->cabecario_227_agrupado[$codfornec]['QUANTIDADE']++;
+
+                // Verifica se o produto está completo
+                if (
+                    $produto['vl_reembolso'] > 0 &&
+                    $produto['vl_oferta'] > 0
+                ) {
+                    $this->cabecario_227_agrupado[$codfornec]['COMPLETAS']++;
+                }
             }
 
-            // Incrementa a quantidade total
-            $this->cabecario_227_agrupado[$codfornec]['QUANTIDADE']++;
-
-            // Verifica se o produto está completo
-            if (
-                $produto['vl_reembolso'] > 0 &&
-                $produto['vl_oferta'] > 0
-            ) {
-                $this->cabecario_227_agrupado[$codfornec]['COMPLETAS']++;
+            // Calcula a porcentagem de aceitação para cada fornecedor
+            foreach ($this->cabecario_227_agrupado as &$fornecedor) {
+                $quantidade = $fornecedor['QUANTIDADE'];
+                $completas = $fornecedor['COMPLETAS'];
+                $fornecedor['PERC_ACEITE'] = $quantidade > 0 ? round(($completas / $quantidade) * 100, 2) : 0;
             }
-        }
 
-        // Calcula a porcentagem de aceitação para cada fornecedor
-        foreach ($this->cabecario_227_agrupado as &$fornecedor) {
-            $quantidade = $fornecedor['QUANTIDADE'];
-            $completas = $fornecedor['COMPLETAS'];
-            $fornecedor['PERC_ACEITE'] = $quantidade > 0 ? round(($completas / $quantidade) * 100, 2) : 0;
+        } catch (\Exception $e) {
+            $this->toast('error', 'Erro ao buscar produto!');
         }
-
-    } catch (\Exception $e) {
-        $this->toast('error', 'Erro ao buscar produto!');
     }
-}
 
     public function modalOpenOptions($codfornec)
     {
@@ -234,6 +223,7 @@ public function modalOpen($index)
                 foreach ($value['consulta_dados'] as $key2 => $value2) {
                     if ($value2['CODFORNEC'] == $codfornec) {
                         $value2['CODSUGITEM'] = $value['codsugitem'] ?? null;
+                        $value2['ITEM_STATUS'] = $value['status'] ?? null;
                         $value2['CODSUG'] = $value['codsug'] ?? null;
                         $value2['DATA_VENCIMENTO'] = $value['data_vencimento'] ?? null;
                         $value2['QUANTIDADE'] = $value['quantidade'] ?? null;
@@ -309,7 +299,7 @@ public function modalOpen($index)
                 'descricao_sugestao' => $this->dados_cursor[0]['DESCRICAO_SUGESTAO'],
                 'codfornec' => $this->dados_cursor[0]['CODFORNEC'],
                 'codsug' => $this->dados_cursor[0]['CODSUG']
-            ] );
+            ]);
 
         $this->VisualizarPDF($this->dados_cursor);
         $this->modalOpen($this->dados_cursor[0]['CODSUG']);
@@ -317,6 +307,36 @@ public function modalOpen($index)
         $this->dados_cursor = [];
 
     }
+
+    public function aprovar($codsugitem, $codsug, $status)
+    {
+        try {
+            DB::connection('oracle')->update(
+                "UPDATE bdc_sugestoesi@dbl200
+                        SET
+                            status = :status
+                      WHERE codsugitem = :codsugitem
+                        AND codsug = :codsug",
+                [
+                    'status' => $status,
+                    'codsugitem' => $codsugitem,
+                    'codsug' => $codsug,
+                ]
+            );
+            $this->toast('success', 'Item atualizado com sucesso!');
+            /*$this->modalOpen($codsug);
+            $this->home();*/
+            foreach ($this->dados_cursor as $key => $value) {
+                if ($value['CODSUGITEM'] == $codsugitem) {
+                    $this->dados_cursor[$key]['ITEM_STATUS'] = $status;
+                }
+            }
+        } catch (\Exception $e) {
+            $this->toast('error', 'Erro ao atualizar item!');
+        }
+
+    }
+
 
     public function buscarProdutoRotina($codprod, $codfilial)
     {

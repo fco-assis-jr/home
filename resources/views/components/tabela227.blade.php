@@ -107,11 +107,12 @@
                     </div>
                 </div>
             </th>
+            <th style="border-right-style: hidden;border-top-style: hidden;"></th>
         </tr>
         </thead>
         <tbody>
         @foreach ($dados_cursor as $index => $item)
-            <tr class="{{ ($item['VL_REEMBOLSO'] <= 0 || $item['VL_OFERTA'] <= 0) ? 'bg-red-400 text-white' : 'bg-blue-400 text-white' }}" wire:key="{{ $index }}">
+            <tr class="{{ $item['ITEM_STATUS'] <= 0 ? 'bg-red-400 text-white' : 'bg-blue-400 text-white' }}" wire:key="{{ $index }}">
                 <td class="text-uppercase text-center">
                     <div class="col-md-12">
                         <div class="row">
@@ -130,7 +131,7 @@
                                  style="font-size: 14px;">
                                 <span>{{ $item['CODAUXILIAR'] }}</span>
                                 <span>{{ $item['ICMS'] }}</span>
-                                <span class="{{ ($item['VL_REEMBOLSO'] <= 0 || $item['VL_OFERTA'] <= 0) ? 'text-white' : 'text-red-500' }}">{{ $item['DATA_VENCIMENTO'] }}</span>
+                                <span class="{{ $item['ITEM_STATUS'] <= 0 ? 'text-white' : 'text-red-500' }}">{{ $item['DATA_VENCIMENTO'] }}</span>
                             </div>
                         </div>
                     </div>
@@ -185,7 +186,7 @@
                             <div class="col-md-12 flex justify-between gap-3"
                                  style="font-size: 14px;">
                                 <span class="text-transparent">CD CX ></span>
-                                <span class="{{ ($item['VL_REEMBOLSO'] <= 0 || $item['VL_OFERTA'] <= 0) ? 'text-white' : 'text-red-500' }}">QT {{ $item['QUANTIDADE'] }}</span>
+                                <span class="{{ $item['ITEM_STATUS'] <= 0 ? 'text-white' : 'text-red-500' }}">QT {{ $item['QUANTIDADE'] }}</span>
                                 <span>CD CX></span>
                                 <span>{{ $item['CD_CX'] }}</span>
                             </div>
@@ -203,7 +204,7 @@
                                 @endphp
 
                                 @if (count($margem_pvenda) > 1)
-                                    <span class="oferta-margem-pvenda {{ ($item['VL_REEMBOLSO'] <= 0 || $item['VL_OFERTA'] <= 0) ? 'text-white' : 'text-red-500' }}">oferta</span>
+                                    <span class="oferta-margem-pvenda {{ $item['ITEM_STATUS'] <= 0 ? 'text-white' : 'text-red-500' }}">oferta</span>
                                     <span style="margin-left: -84px;margin-top: 10px;">{{ $margem_pvenda[0] }}</span>
                                 @else
                                     {{ $margem_pvenda[0] }}
@@ -238,6 +239,13 @@
                     <input type="text" class="form-control" value="{{ $this->formatMoeda($item['VL_OFERTA']) }}"
                            onkeyup="k(this);"
                            wire:change="updateValue('{{ $index }}', 'VL_OFERTA', $event.target.value)">
+                </td>
+                <td style="vertical-align: middle; text-align: center">
+                    <span
+                        class="cursor-pointer {{ $item['ITEM_STATUS'] > 0 ? 'bi bi-x-circle text-red-500' : 'bi bi-check-circle text-green-500' }} text-lg"
+                        wire:click="aprovar({{ $item['CODSUGITEM'] }}, {{ $item['CODSUG'] }}, {{ $item['ITEM_STATUS'] > 0 ? 0 : 1 }} )"
+                    >
+                    </span>
                 </td>
             </tr>
         @endforeach
