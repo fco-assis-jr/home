@@ -147,6 +147,7 @@ ORDER BY C.CODSUG DESC"
                 ['codsug' => $index]
             );
 
+
             // Configura as informações principais
             $this->nome = $produtos[0]->nome ?? 'N/A';
             $this->filial = $produtos[0]->codfilial ?? 'N/A';
@@ -154,40 +155,35 @@ ORDER BY C.CODSUG DESC"
             $this->dispatch('ModalTableAvaliar');
 
             // Processa os dados dos produtos
-            $produtos_com_dados = [];
+/*            $produtos_com_dados = [];
             foreach ($produtos as $produto) {
                 $produto = (array)$produto;
-
-                // Trate valores nulos
                 $produto['vl_reembolso'] = $produto['vl_reembolso'] ?? 0;
                 $produto['vl_oferta'] = $produto['vl_oferta'] ?? 0;
-
-                // Busca dados adicionais
-                $resultado = $this->buscarProdutoRotina($produto['codprod'], $produto['codfilial']);
-                $produto['consulta_dados'] = $resultado ?: null;
-
+                $produto['consulta_dados'] =  null;
                 $produtos_com_dados[] = $produto;
             }
-            $this->itensi = $produtos_com_dados;
+
+            $this->itensi = $produtos_com_dados;*/
+            $this->itensi = $produtos;
 
             // Agrupamento por fornecedor
             $this->cabecario_227_agrupado = [];
             foreach ($this->itensi as $produto) {
-                $codfornec = $produto['codfornec'];
-
+                $codfornec = $produto->codfornec;
                 if (!isset($this->cabecario_227_agrupado[$codfornec])) {
-                    $prazo_entrega = $produto['prazoentrega'] ?? 0; // Ajusta o prazo de entrega
+                    $prazo_entrega = $produto->prazoentrega ?? 0; // Ajusta o prazo de entrega
 
                     $this->cabecario_227_agrupado[$codfornec] = [
                         'CODFORNEC' => $codfornec,
-                        'FORNECEDOR' => $produto['fornecedor'] ?? 'N/A',
+                        'FORNECEDOR' => $produto->fornecedor ?? 'N/A',
                         'PRAZOENTREGA' => $prazo_entrega,
-                        'OBSERVACAO' => $produto['fornecedor_observacao'] ?? 'Sem Observação', // Atualizado aqui
+                        'OBSERVACAO' => $produto->fornecedor_observacao ?? 'Sem Observação', // Atualizado aqui
                         'QUANTIDADE' => 0,
                         'COMPLETAS' => 0,
                         'PERC_ACEITE' => 0,
-                        'ITENS_STATUS' => $produto['status_status'] ?? 'N/A', // Incluído aqui
-                        'DATACRIACAO' => $produto['data'],
+                        'ITENS_STATUS' => $produto->status_status ?? 'N/A', // Incluído aqui
+                        'DATACRIACAO' => $produto->data,
                     ];
                 }
 
@@ -196,8 +192,8 @@ ORDER BY C.CODSUG DESC"
 
                 // Verifica se o produto está completo
                 if (
-                    $produto['vl_reembolso'] > 0 &&
-                    $produto['vl_oferta'] > 0
+                    $produto->vl_reembolso > 0 &&
+                    $produto->vl_oferta > 0
                 ) {
                     $this->cabecario_227_agrupado[$codfornec]['COMPLETAS']++;
                 }
@@ -217,8 +213,24 @@ ORDER BY C.CODSUG DESC"
 
     public function modalOpenOptions($codfornec)
     {
+
+        // Filtra os itens do fornecedor
+        $itensFiltrados = array_filter($this->itensi, function($item) use ($codfornec) {
+            return $item->codfornec == $codfornec;
+        });
+
+        $produtos_com_dados = [];
+        foreach ($itensFiltrados as $produto) {
+            $produto = (array)$produto;
+            $produto['vl_reembolso'] = $produto['vl_reembolso'] ?? 0;
+            $produto['vl_oferta'] = $produto['vl_oferta'] ?? 0;
+            $resultado = $this->buscarProdutoRotina($produto['codprod'], $produto['codfilial']);
+            $produto['consulta_dados'] = $resultado ?: null;
+            $produtos_com_dados[] = $produto;
+        }
+        $itensFornec = $produtos_com_dados;
         $this->dados_cursor = [];
-        foreach ($this->itensi as $key => $value) {
+        foreach ($itensFornec as $key => $value) {
             if (!empty($value['consulta_dados'])) {
                 foreach ($value['consulta_dados'] as $key2 => $value2) {
                     if ($value2['CODFORNEC'] == $codfornec) {
