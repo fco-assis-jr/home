@@ -72,8 +72,7 @@ SELECT C.CODSUG,
                        ROUND(
                            COUNT(
                            DISTINCT CASE
-                               WHEN NVL(I1.VL_REEMBOLSO, 0) > 0
-                           AND NVL(I1.VL_OFERTA, 0) > 0
+                               WHEN NVL(I1.STATUS, 0) = 1
                            THEN
                                I1.CODFORNEC
                            END) * 100.0 / COUNT(DISTINCT I1.CODFORNEC))
@@ -154,17 +153,7 @@ ORDER BY C.CODSUG DESC"
             $this->data_criacao = $produtos[0]->data ?? 'N/A';
             $this->dispatch('ModalTableAvaliar');
 
-            // Processa os dados dos produtos
-/*            $produtos_com_dados = [];
-            foreach ($produtos as $produto) {
-                $produto = (array)$produto;
-                $produto['vl_reembolso'] = $produto['vl_reembolso'] ?? 0;
-                $produto['vl_oferta'] = $produto['vl_oferta'] ?? 0;
-                $produto['consulta_dados'] =  null;
-                $produtos_com_dados[] = $produto;
-            }
 
-            $this->itensi = $produtos_com_dados;*/
             $this->itensi = $produtos;
 
             // Agrupamento por fornecedor
@@ -191,10 +180,8 @@ ORDER BY C.CODSUG DESC"
                 $this->cabecario_227_agrupado[$codfornec]['QUANTIDADE']++;
 
                 // Verifica se o produto está completo
-                if (
-                    $produto->vl_reembolso > 0 &&
-                    $produto->vl_oferta > 0
-                ) {
+
+                if ($produto->status == 1) {
                     $this->cabecario_227_agrupado[$codfornec]['COMPLETAS']++;
                 }
             }
@@ -271,7 +258,6 @@ ORDER BY C.CODSUG DESC"
             $this->dados_cursor[$key][$campo] = $value;
         }
     }
-
     public function salvar_dados()
     {
         foreach ($this->dados_cursor as $key => $value) {
