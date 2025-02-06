@@ -205,9 +205,13 @@
         );
     });
 
-    document.querySelector('#spanOpen').addEventListener('click', () => {
+    document.addEventListener('DOMContentLoaded', () => {
         table.column(6).search('ABERTO').draw();
+        document.querySelector('#spanOpen').addEventListener('click', () => {
+            table.column(6).search('ABERTO').draw();
+        });
     });
+
 
     document.querySelector('#spanClose').addEventListener('click', () => {
         table.column(6).search('FECHADO').draw();
