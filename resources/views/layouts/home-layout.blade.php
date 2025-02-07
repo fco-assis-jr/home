@@ -53,7 +53,8 @@
         </div>
     </div>
     <ul class="app-menu">
-        <li><a class="app-menu__item " href="{{route('home')}}"><i class="app-menu__icon bi bi-speedometer"></i><span class="app-menu__label">Dashboard</span></a></li>
+        <li><a class="app-menu__item " href="{{route('home')}}"><i class="app-menu__icon bi bi-speedometer"></i><span
+                    class="app-menu__label">Dashboard</span></a></li>
         @foreach(session('bdc_controc') as $bdc_controc)
             @if($bdc_controc->codmod)
                 <x-menu-item :contro="$bdc_controc"/>
@@ -98,14 +99,37 @@
         Livewire.on('FecharModalOcorrencia', () => modalDuplicarOcorrencia.modal('hide'));
 
         Livewire.on('flipForm', () => {
-            let div =  document.querySelector('.login-box');
-            if(div){
+            let div = document.querySelector('.login-box');
+            if (div) {
                 div.classList.toggle('flipped');
                 div.style.transition = 'all 1.5s';
                 div.style.minHeight = '700px';
                 return;
             }
         });
+    });
+
+    $('#sampleTable').DataTable({
+        order: [[0, 'desc']],
+        scrollCollapse: true,
+        scrollY: '50vh',
+        language: {
+            "sEmptyTable": "Nenhum dado disponível na tabela",
+            "sInfo": "Mostrando _START_ até _END_ de _TOTAL_ entradas",
+            "sInfoEmpty": "Mostrando 0 até 0 de 0 entradas",
+            "sInfoFiltered": "(filtrado de _MAX_ entradas no total)",
+            "sInfoPostFix": "",
+            "sInfoThousands": ".",
+            "sLengthMenu": "Mostrar _MENU_ entradas",
+            "sLoadingRecords": "Carregando...",
+            "sProcessing": "Processando...",
+            "sSearch": "Buscar:",
+            "sZeroRecords": "Nenhum registro encontrado",
+            "oPaginate": {
+                "sNext": "Próximo",
+                "sPrevious": "Anterior"
+            }
+        }
     });
 
 
@@ -212,38 +236,13 @@
         });
     });
 
-
     document.querySelector('#spanClose').addEventListener('click', () => {
         table.column(6).search('FECHADO').draw();
     });
 
-    document.querySelector('#spanAll').addEventListener('click', () => {
+    document.querySelector('#spanAll').addEventListener('click', () => {s
         table.column(6).search('').draw();
     });
-
-    $('#sampleTable').DataTable({
-        order: [[0, 'desc']],
-        scrollCollapse: true,
-        scrollY: '50vh',
-        language: {
-            "sEmptyTable": "Nenhum dado disponível na tabela",
-            "sInfo": "Mostrando _START_ até _END_ de _TOTAL_ entradas",
-            "sInfoEmpty": "Mostrando 0 até 0 de 0 entradas",
-            "sInfoFiltered": "(filtrado de _MAX_ entradas no total)",
-            "sInfoPostFix": "",
-            "sInfoThousands": ".",
-            "sLengthMenu": "Mostrar _MENU_ entradas",
-            "sLoadingRecords": "Carregando...",
-            "sProcessing": "Processando...",
-            "sSearch": "Buscar:",
-            "sZeroRecords": "Nenhum registro encontrado",
-            "oPaginate": {
-                "sNext": "Próximo",
-                "sPrevious": "Anterior"
-            }
-        }
-    });
-
 
 </script>
 </body>
