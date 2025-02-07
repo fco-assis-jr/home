@@ -37,7 +37,7 @@
         }
 
         table, th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #000000;
         }
 
         th, td {
@@ -184,7 +184,7 @@
                         <div style="font-size: 9px;text-align: left; margin-top: 5px; position: absolute">
                             <span style="position: absolute; ">{{ $item['CODAUXILIAR'] }}</span>
                             <span style="position: absolute; margin-left: 100px">{{ $item['ICMS'] ?? null }}</span>
-                            <span style="color: red;position: absolute; margin-left: 230px">{{ $item['DATA_VENCIMENTO'] }}</span>
+                            <span style="color: red;position: absolute; margin-left: 210px; font-size: 12px; margin-top: -2px">{{ $item['DATA_VENCIMENTO'] }}</span>
                         </div>
                     </div>
                 </td>
@@ -225,7 +225,7 @@
                             <span style="position: absolute; margin-left: 105px">{{ $item['ESTDIAS'] }}</span>
                         </div>
                         <div style="font-size: 9px;text-align: left; margin-top: 5px; position: absolute">
-                            <span style="color: red; position: absolute">QT {{ $item['QUANTIDADE'] }}</span>
+                            <span style="color: red; position: absolute;font-size: 12px; margin-left: -5px; margin-top: -2px">QT {{ $item['QUANTIDADE'] }}</span>
                             <span style="position: absolute; margin-left: 60px">CD CX></span>
                             <span style="position: absolute; margin-left: 105px">{{ $item['CD_CX'] }}</span>
                         </div>
@@ -264,12 +264,12 @@
                 </td>
                 <td style="width: 6%;">
                     <div style="font-size: 9px; padding-right: 20px; text-align: left; margin-top: 5px; position: absolute">
-                        <span style="margin-left: 0px">{{ $item['VL_REEMBOLSO'] }}</span>
+                        <span style="margin-left: 0px; color: red; font-size: 12px">{{ $item['VL_REEMBOLSO'] }}</span>
                     </div>
                 </td>
                 <td style="width: 6%;">
                     <div style="font-size: 9px; padding-right: 20px; text-align: left; margin-top: 5px; position: absolute">
-                        <span id="vlOferta" style="margin-left: -5px;">
+                        <span id="vlOferta" style="margin-left: -5px; color: red; font-size: 12px">
                             {{ $item['VL_OFERTA'] }}
                         </span>
                     </div>
