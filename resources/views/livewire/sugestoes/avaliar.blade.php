@@ -226,7 +226,7 @@
             table.column(6).search('FECHADO').draw();
         });
 
-        document.querySelector('#spanAll').addEventListener('click', () => {s
+        document.querySelector('#spanAll').addEventListener('click', () => {
             table.column(6).search('').draw();
         });
     </script>
