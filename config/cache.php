@@ -11,11 +11,11 @@ return [
     |
     | This option controls the default cache store that will be used by the
     | framework. This connection is utilized if another isn't explicitly
-    | specified when running a cache operation inside the application.
+    | specified when running a cache operation insidea the application.
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    'default' => env('CACHE_DRIVER', 'file'),
 
     /*
     |--------------------------------------------------------------------------
