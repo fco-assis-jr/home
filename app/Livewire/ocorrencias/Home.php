@@ -80,7 +80,7 @@ class Home extends Component
             mkdir($directory, 0755, true);
         }
 
-        foreach ($files as $file) {
+        foreach ($files ?? [] as $file) {
             if ($file->isValid()) {
                 $fileName = $file->getClientOriginalName();
                 $fileName = md5($fileName . time()) . '.' . $file->getClientOriginalExtension();
