@@ -92,11 +92,12 @@ class Home extends Component
                              ON e.codprod = p.codprod
                              INNER JOIN pcfornec f
                              ON p.codfornec = f.codfornec
-                     WHERE   e.codauxiliar = ? and e.codfilial = ?
-                     AND NVL (e.pvenda, 0) > 0",
-                [$codigo, $this->codfilial]
-            );
-
+                     WHERE   ( E.CODAUXILIAR = ?
+                      OR E.CODPROD = ? )
+                         AND E.CODFILIAL = ?
+                         AND NVL(E.PVENDA, 0) > 0",
+                                [$codigo,$codigo, $this->codfilial]
+                            );
 
             if (empty($produtos)) {
                 $this->toast('error', 'Produto não encontrado!');
