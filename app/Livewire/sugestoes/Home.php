@@ -95,7 +95,7 @@ class Home extends Component
                      WHERE    E.CODAUXILIAR = ?
                          AND E.CODFILIAL = ?
                          AND NVL(E.PVENDA, 0) > 0",
-                                [$codigo,$codigo, $this->codfilial]
+                                [$codigo, $this->codfilial]
                             );
 
             if (empty($produtos)) {
