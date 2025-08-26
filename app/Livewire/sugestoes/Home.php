@@ -92,8 +92,7 @@ class Home extends Component
                              ON e.codprod = p.codprod
                              INNER JOIN pcfornec f
                              ON p.codfornec = f.codfornec
-                     WHERE   ( E.CODAUXILIAR = ?
-                      OR E.CODPROD = ? )
+                     WHERE    E.CODAUXILIAR = ?
                          AND E.CODFILIAL = ?
                          AND NVL(E.PVENDA, 0) > 0",
                                 [$codigo,$codigo, $this->codfilial]
