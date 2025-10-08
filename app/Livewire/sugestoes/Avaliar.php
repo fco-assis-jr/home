@@ -52,14 +52,14 @@ class Avaliar extends Component
                     ELSE
                         'COMPLETO'
                 END AS STATUS
-         FROM BDC_SUGESTOESI@DBL200
+         FROM BDC_SUGESTOESI
          GROUP BY CODSUG)
 SELECT C.CODSUG,
        P.NOME,
        TO_CHAR(C.DATA, 'DD/MM/YYYY HH24:MI:SS') AS DATA,
        C.CODFILIAL,
        (SELECT COUNT(1)
-        FROM BDC_SUGESTOESI@DBL200 I
+        FROM BDC_SUGESTOESI I
         WHERE I.CODSUG = C.CODSUG) AS QTD_AGUARDANDO,
        (SELECT S.STATUS
         FROM STATUS_SUGESTAO S
@@ -77,9 +77,9 @@ SELECT C.CODSUG,
                                I1.CODFORNEC
                            END) * 100.0 / COUNT(DISTINCT I1.CODFORNEC))
                END
-        FROM BDC_SUGESTOESI@DBL200 I1
+        FROM BDC_SUGESTOESI I1
         WHERE I1.CODSUG = C.CODSUG) AS PERC_ACEITE
-FROM BDC_SUGESTOESC@DBL200 C
+FROM BDC_SUGESTOESC C
      INNER JOIN PCEMPR P ON P.MATRICULA = C.CODUSUARIO
 ORDER BY C.CODSUG DESC"
         );
@@ -104,7 +104,7 @@ ORDER BY C.CODSUG DESC"
                            ) > 0 THEN 'INCOMPLETO'
                            ELSE 'COMPLETO'
                        END AS status
-                FROM bdc_sugestoesi@dbl200
+                FROM bdc_sugestoesi
                 WHERE codsug = :codsug
                 GROUP BY codfornec, codsug
             )
@@ -136,8 +136,8 @@ ORDER BY C.CODSUG DESC"
                     FROM status_sugestao s
                     WHERE s.codsug = c.codsug AND s.codfornec = f.codfornec) AS status_status,
                    NVL((TRUNC(i.fimoferta) - TRUNC(i.inioferta)), 0) AS prazoentrega
-            FROM bdc_sugestoesi@dbl200 i
-                 JOIN bdc_sugestoesc@dbl200 c ON i.codsug = c.codsug
+            FROM bdc_sugestoesi i
+                 JOIN bdc_sugestoesc c ON i.codsug = c.codsug
                  JOIN pcembalagem e ON e.codauxiliar = i.codauxiliar
                  JOIN pcempr emp ON c.codusuario = emp.matricula
                  JOIN pcfornec f ON f.codfornec = i.codfornec
@@ -263,7 +263,7 @@ ORDER BY C.CODSUG DESC"
         foreach ($this->dados_cursor as $key => $value) {
             try {
                 DB::connection('oracle')->update(
-                    "UPDATE bdc_sugestoesi@dbl200
+                    "UPDATE bdc_sugestoesi
                         SET
                             vl_reembolso = :vl_reembolso,
                             vl_oferta = :vl_oferta,
@@ -290,7 +290,7 @@ ORDER BY C.CODSUG DESC"
         }
 
         DB::connection('oracle')->update(
-            "UPDATE bdc_sugestoesi@dbl200
+            "UPDATE bdc_sugestoesi
                 SET DESCRICAOSUG = :descricao_sugestao
               WHERE codfornec = :codfornec and codsug = :codsug",
             [
@@ -310,7 +310,7 @@ ORDER BY C.CODSUG DESC"
     {
         try {
             DB::connection('oracle')->update(
-                "UPDATE bdc_sugestoesi@dbl200
+                "UPDATE bdc_sugestoesi
                         SET
                             status = :status
                       WHERE codsugitem = :codsugitem

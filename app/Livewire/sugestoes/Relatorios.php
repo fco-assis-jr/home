@@ -30,7 +30,7 @@ class Relatorios extends Component
             'pcsecao'     => 'descricao',
             'pccategoria' => 'categoria',
             'pcfornec'    => 'fornecedor',
-            'bdc_sugestoesi@dbl200' => 'descricao'
+            'bdc_sugestoesi' => 'descricao'
         ];
 
         if (!in_array($filtro, $colunasPermitidas) || !array_key_exists($tabela, $tabelasPermitidas)) {
@@ -42,8 +42,8 @@ class Relatorios extends Component
 
         // Monta a query de forma segura
         $sql = "SELECT si.$filtro AS id, tr.$colunaDescricao AS descricao
-            FROM bdc_sugestoesc@dbl200 sc
-            INNER JOIN bdc_sugestoesi@dbl200 si
+            FROM bdc_sugestoesc sc
+            INNER JOIN bdc_sugestoesi si
                 ON sc.codsug = si.codsug AND sc.codusuario = :codusuario
             INNER JOIN $tabela tr
                 ON si.$filtro = tr.$filtro
@@ -71,8 +71,8 @@ class Relatorios extends Component
 
         $relatorio = DB::connection('oracle')->select("
         SELECT   sc.codsug, si." . $this->filtro . " as tabela , sc.data ,sc.codfilial, count(1) as quantidade
-        FROM       bdc_sugestoesc@dbl200 sc
-        INNER JOIN bdc_sugestoesi@dbl200 si
+        FROM       bdc_sugestoesc sc
+        INNER JOIN bdc_sugestoesi si
         ON     sc.codsug = si.codsug
         AND sc.codusuario = :matricula
         AND si." . $this->filtro . " = :selecionado group by sc.codsug, si." . $this->filtro . ", sc.data,sc.codfilial
@@ -114,8 +114,8 @@ class Relatorios extends Component
             si.descricao as descricao_produto,
             to_char(si.data_vencimento, 'DD/MM/YYYY') as data_vencimento,
             si.descricaosug
-        FROM       bdc_sugestoesc@dbl200 sc
-            INNER JOIN bdc_sugestoesi@dbl200 si
+        FROM       bdc_sugestoesc sc
+            INNER JOIN bdc_sugestoesi si
             ON  sc.codsug = si.codsug
             AND sc.codusuario = :matricula
             AND si." . $this->filtro . " = :selecionado

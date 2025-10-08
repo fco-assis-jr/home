@@ -38,9 +38,9 @@ class Ocorrencias extends Component
          ro.descricao,
          ro.numero_transacao,
          ro.valor_ocorrencia
-  FROM               bdc_registros_ocorrencias@dbl200 ro
+  FROM               bdc_registros_ocorrencias ro
                  INNER JOIN
-                     bdc_registros_tipos@dbl200 tp
+                     bdc_registros_tipos tp
                  ON ro.tipo_registro = tp.codtipo
              LEFT JOIN
                  pcempr pc_usuario
@@ -50,7 +50,7 @@ class Ocorrencias extends Component
          ON pc_func.matricula = ro.codfunc order by ro.id desc');
 
 
-        $this->tipo_registro = DB::connection('oracle')->select('SELECT * FROM bdc_registros_tipos@dbl200');
+        $this->tipo_registro = DB::connection('oracle')->select('SELECT * FROM bdc_registros_tipos');
     }
 
     public function abrirModal($id)
@@ -65,9 +65,9 @@ class Ocorrencias extends Component
          to_char(ro.data_criacao, \'DD/MM/YYYY HH24:MI:SS\') AS data_criacao,
          ro.descricao,
          ro.numero_transacao
-  FROM               bdc_registros_ocorrencias@dbl200 ro
+  FROM               bdc_registros_ocorrencias ro
                  INNER JOIN
-                     bdc_registros_tipos@dbl200 tp
+                     bdc_registros_tipos tp
                  ON ro.tipo_registro = tp.codtipo
              LEFT JOIN
                  pcempr pc_usuario
@@ -78,12 +78,12 @@ class Ocorrencias extends Component
     WHERE ro.id = ?', [$id]);
         $this->ModalOcorrencia = $ocorrencia;
 
-        //vamos buscar as imagens bdc_registros_dirimg@dbl200 dirimg
+        //vamos buscar as imagens bdc_registros_dirimg dirimg
         $imagem = DB::connection('oracle')->select('SELECT
                      dirimg.id_ocorrencia,
                      dirimg.file_name
                  FROM
-                     bdc_registros_dirimg@dbl200 dirimg
+                     bdc_registros_dirimg dirimg
                  WHERE
                      dirimg.id_ocorrencia = ?', [$id]);
         $this->imagem = $imagem;
@@ -138,18 +138,18 @@ class Ocorrencias extends Component
                 return;
             }
             $matricula = $result[0]->matricula;
-            $seq = DB::connection('oracle')->select('select seq_reg_ocorrencias_id.NEXTVAL@dbl200 as seq from dual')[0]->seq;
+            $seq = DB::connection('oracle')->select('select seq_reg_ocorrencias_id.NEXTVAL as seq from dual')[0]->seq;
 
             DB::connection('oracle')->insert('
-            insert into bdc_registros_ocorrencias@dbl200
+            insert into bdc_registros_ocorrencias
             (id, codusuario, tipo_registro, data, filial, codfunc, data_criacao, descricao, numero_transacao)
             values (?, ?, ?, TO_DATE(?, \'DD/MM/YYYY\'), ?, ?, TO_DATE(?, \'DD/MM/YYYY HH24:MI:SS\'), ?, ?)',
                 [$seq, $codusuario, $tipo_ocorrencia, $data_ocorrencia, $filial, $matricula, $data_criacao, $descricao, $numero_transacao]
             );
 
-            $imagem = DB::connection('oracle')->select('SELECT dirimg.id_ocorrencia, dirimg.file_name FROM bdc_registros_dirimg@dbl200 dirimg WHERE dirimg.id_ocorrencia = ?', [$id]);
+            $imagem = DB::connection('oracle')->select('SELECT dirimg.id_ocorrencia, dirimg.file_name FROM bdc_registros_dirimg dirimg WHERE dirimg.id_ocorrencia = ?', [$id]);
             foreach ($imagem as $item) {
-                DB::connection('oracle')->insert('insert into bdc_registros_dirimg@dbl200 (id_ocorrencia, file_name) values (?, ?)', [$seq, $item->file_name]);
+                DB::connection('oracle')->insert('insert into bdc_registros_dirimg (id_ocorrencia, file_name) values (?, ?)', [$seq, $item->file_name]);
             }
 
             $this->alert('success', 'Ocorrência cadastrada com sucesso!');

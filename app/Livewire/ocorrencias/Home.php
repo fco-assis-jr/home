@@ -30,7 +30,7 @@ class Home extends Component
 
     public function mount()
     {
-        $Tipo_ocorrencias = DB::connection('oracle')->select('select codtipo, descricao from bdc_registros_tipos@dbl200 order by codtipo');
+        $Tipo_ocorrencias = DB::connection('oracle')->select('select codtipo, descricao from bdc_registros_tipos order by codtipo');
         $this->Tipo_ocorrencias = $Tipo_ocorrencias;
 
         $Filiais = DB::connection('oracle')->select('SELECT   pc.codigo AS codfil, pc.contato AS nomfil
@@ -66,10 +66,10 @@ class Home extends Component
 
         $matricula = $matricula[0]->matricula;
 
-        $seq = DB::connection('oracle')->select('select seq_reg_ocorrencias_id.NEXTVAL@dbl200 as seq from dual');
+        $seq = DB::connection('oracle')->select('select seq_reg_ocorrencias_id.NEXTVAL as seq from dual');
         $seq = $seq[0]->seq;
 
-        DB::connection('oracle')->insert('insert into bdc_registros_ocorrencias@dbl200 (id, codusuario, tipo_registro, data, filial, codfunc, data_criacao, descricao, numero_transacao, valor_ocorrencia)
+        DB::connection('oracle')->insert('insert into bdc_registros_ocorrencias (id, codusuario, tipo_registro, data, filial, codfunc, data_criacao, descricao, numero_transacao, valor_ocorrencia)
         values (?, ?, ?, ?, ?, ?, SYSDATE, ?, ?, ?)',
             [$seq, auth()->user()->matricula, $tipo_ocorrencia, $data_ocorrencia, $filial, $matricula, $observacoes, $numero_transacao, $valor_ocorrencia]);
 
@@ -86,7 +86,7 @@ class Home extends Component
                 $fileName = md5($fileName . time()) . '.' . $file->getClientOriginalExtension();
 
                 $file->storeAs('ocorrencia_files', $fileName, 'public');
-                DB::connection('oracle')->insert('insert into bdc_registros_dirimg@dbl200 (id_ocorrencia, file_name) values (?, ?)', [$seq, $fileName]);
+                DB::connection('oracle')->insert('insert into bdc_registros_dirimg (id_ocorrencia, file_name) values (?, ?)', [$seq, $fileName]);
             } else {
                 $this->alert('error', 'Erro ao processar o arquivo: ' . $file->getClientOriginalName());
             }
