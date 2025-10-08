@@ -31,11 +31,11 @@
                                 class="btn btn-danger w-full"
                                 onclick="ShowSelect('FORNECEDOR')">FORNECEDOR
                         </button>
-                        <button wire:click="filtrar('codauxiliar','descricao', 'bdc_sugestoesi@dbl200', 'CODAUXILIAR')"
+                        <button wire:click="filtrar('codauxiliar','descricao', 'bdc_sugestoesi', 'CODAUXILIAR')"
                                 class="btn btn-danger w-full"
                                 onclick="ShowSelect('CODAUXILIAR','descricao')">CODAUXILIAR
                         </button>
-                        <button wire:click="filtrar('codprod', 'descricao', 'bdc_sugestoesi@dbl200', 'CODPROD')"
+                        <button wire:click="filtrar('codprod', 'descricao', 'bdc_sugestoesi', 'CODPROD')"
                                 class="btn btn-danger w-full"
                                 onclick="ShowSelect('CODPROD')">CODPROD
                         </button>

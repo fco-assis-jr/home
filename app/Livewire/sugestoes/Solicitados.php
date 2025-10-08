@@ -43,8 +43,8 @@ class Solicitados extends Component
                              p.nome,
                              TO_CHAR(c.data, 'DD/MM/YYYY HH24:MI:SS') data,
                              c.codfilial,
-                             (select count(1) from bdc_sugestoesi@dbl200 i where i.codsug = c.codsug ) as qtd_aguardando
-                      FROM   bdc_sugestoesc@dbl200 c,
+                             (select count(1) from bdc_sugestoesi i where i.codsug = c.codsug ) as qtd_aguardando
+                      FROM   bdc_sugestoesc c,
                              pcempr p
                      WHERE   p.matricula = c.codusuario
                      and c.codusuario = :codusuario
@@ -74,8 +74,8 @@ class Solicitados extends Component
                                           c.codfilial,
                                           p.codauxiliar prod_codauxiliar,
                                           emp.nome
-                          FROM   bdc_sugestoesi@dbl200 i,
-                                 bdc_sugestoesc@dbl200 c,
+                          FROM   bdc_sugestoesi i,
+                                 bdc_sugestoesc c,
                                  pcembalagem e,
                                  pcprodut p,
                                  pcempr emp
@@ -115,7 +115,7 @@ class Solicitados extends Component
             $data_vencimento = $data_convertida ? $data_convertida->format('d/m/Y') : null;
 
             DB::connection('oracle')->update(
-                "UPDATE bdc_sugestoesi@dbl200
+                "UPDATE bdc_sugestoesi
                     SET quantidade = :quantidade,
                         data_vencimento = TO_DATE(:data_vencimento, 'DD/MM/YYYY')
                   WHERE codsug = :codsug

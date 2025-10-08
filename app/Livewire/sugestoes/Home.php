@@ -223,7 +223,7 @@ class Home extends Component
         try {
 
             $idsug = DB::connection('oracle')->select(
-                'SELECT codsug as id FROM bdc_sugestoesc@dbl200
+                'SELECT codsug as id FROM bdc_sugestoesc
                          WHERE TRUNC(data) = TRUNC(SYSDATE)
                          AND codfilial = ?
                          AND codusuario = ?
@@ -231,9 +231,9 @@ class Home extends Component
                 [$this->codfilial, auth()->user()->matricula]
             );
             if (empty($idsug)) {
-                $codsug = DB::connection('oracle')->select('select to_number(bdc_sugestoesc_seq.nextval@dbl200) as id from dual');
+                $codsug = DB::connection('oracle')->select('select to_number(bdc_sugestoesc_seq.nextval) as id from dual');
 
-                DB::connection('oracle')->insert('insert into bdc_sugestoesc@dbl200 (codsug,codusuario,data,codfilial)
+                DB::connection('oracle')->insert('insert into bdc_sugestoesc (codsug,codusuario,data,codfilial)
                                             values (? ,?, sysdate, ?)', [$codsug[0]->id, auth()->user()->matricula, $this->codfilial]);
                 $idsug=$codsug;
             }
@@ -245,9 +245,9 @@ class Home extends Component
 
             foreach ($this->itens as $item) {
                 $valor_produto = str_replace(['R$ ', '.', ','], ['', '', '.'], $item['valor']);
-                DB::connection('oracle')->insert('INSERT INTO bdc_sugestoesi@dbl200
+                DB::connection('oracle')->insert('INSERT INTO bdc_sugestoesi
                     (codsugitem, codsug, codauxiliar, descricao,  valor_produto, data_vencimento, quantidade, status, UNID, codfornec, codsec, codcategoria, codprod)
-                    VALUES (bdc_sugestoes_seq.NEXTVAL@dbl200, ?, ?, ?, ?, TO_DATE(?, \'DD/MM/YYYY\'), ?, ?, ?, ?, ?, ?, ?)',
+                    VALUES (bdc_sugestoes_seq.NEXTVAL, ?, ?, ?, ?, TO_DATE(?, \'DD/MM/YYYY\'), ?, ?, ?, ?, ?, ?, ?)',
                     [
                         $idsug[0]->id,
                         $item['codigo'],

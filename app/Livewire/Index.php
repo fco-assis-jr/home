@@ -33,9 +33,9 @@ class Index extends Component
         try {
             $registros = DB::connection('oracle')->select('
                 SELECT FILIAL AS FILIAL,
-                       (SELECT DESCRICAO FROM BDC_REGISTROS_TIPOS@DBL200 WHERE CODTIPO = TIPO_REGISTRO) AS TIPO_REGISTRO,
+                       (SELECT DESCRICAO FROM BDC_REGISTROS_TIPOS WHERE CODTIPO = TIPO_REGISTRO) AS TIPO_REGISTRO,
                        COUNT(*) AS QUANTIDADE
-                FROM BDC_REGISTROS_OCORRENCIAS@DBL200
+                FROM BDC_REGISTROS_OCORRENCIAS
                 GROUP BY FILIAL, TIPO_REGISTRO
                 ORDER BY FILIAL, TIPO_REGISTRO
             ');
@@ -59,9 +59,9 @@ class Index extends Component
     {
         try {
             $registros = DB::connection('oracle')->select('
-                SELECT (SELECT DESCRICAO FROM BDC_REGISTROS_TIPOS@DBL200 WHERE CODTIPO = TIPO_REGISTRO) AS TIPO_REGISTRO,
+                SELECT (SELECT DESCRICAO FROM BDC_REGISTROS_TIPOS WHERE CODTIPO = TIPO_REGISTRO) AS TIPO_REGISTRO,
                        COUNT(*) AS QUANTIDADE
-                FROM BDC_REGISTROS_OCORRENCIAS@DBL200
+                FROM BDC_REGISTROS_OCORRENCIAS
                 GROUP BY TIPO_REGISTRO
                 ORDER BY TIPO_REGISTRO
             ');
@@ -80,7 +80,7 @@ class Index extends Component
     {
         try {
             return DB::connection('oracle')
-                ->selectOne("SELECT COUNT(*) AS total FROM BDC_SUGESTOESC@DBL200")
+                ->selectOne("SELECT COUNT(*) AS total FROM BDC_SUGESTOESC")
                 ->total;
         } catch (Exception $e) {
             $this->alert('error', 'Erro ao contar sugestões.');
@@ -92,7 +92,7 @@ class Index extends Component
     {
         try {
             return DB::connection('oracle')
-                ->selectOne("SELECT COUNT(*) AS total FROM bdc_registros_ocorrencias@dbl200")
+                ->selectOne("SELECT COUNT(*) AS total FROM bdc_registros_ocorrencias")
                 ->total;
         } catch (Exception $e) {
             $this->alert('error', 'Erro ao contar ocorrências.');

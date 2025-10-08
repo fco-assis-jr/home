@@ -16,7 +16,7 @@ class Tipos extends Component
 
     public function mount()
     {
-        $ocorrencias = DB::connection('oracle')->select('select codtipo, descricao from bdc_registros_tipos@dbl200 order by codtipo');
+        $ocorrencias = DB::connection('oracle')->select('select codtipo, descricao from bdc_registros_tipos order by codtipo');
         $this->ocorrencias = $ocorrencias;
 
     }
@@ -27,9 +27,9 @@ class Tipos extends Component
             $this->validate([
                 'ocorrencia' => 'required',
             ]);
-            $codtipo = DB::connection('oracle')->select('select nvl(max(codtipo), 0) + 1 as codtipo from bdc_registros_tipos@dbl200');
+            $codtipo = DB::connection('oracle')->select('select nvl(max(codtipo), 0) + 1 as codtipo from bdc_registros_tipos');
             $codtipo = $codtipo[0]->codtipo;
-            DB::connection('oracle')->insert('insert into bdc_registros_tipos@dbl200 (codtipo, descricao) values (:codtipo, upper(:descricao))', ['codtipo' => $codtipo, 'descricao' => $this->ocorrencia]);
+            DB::connection('oracle')->insert('insert into bdc_registros_tipos (codtipo, descricao) values (:codtipo, upper(:descricao))', ['codtipo' => $codtipo, 'descricao' => $this->ocorrencia]);
             $this->ocorrencia = '';
             $this->alert('success', 'Cadastro realizado com sucesso!');
             $this->mount();
@@ -42,14 +42,14 @@ class Tipos extends Component
     public function excluir($codtipo)
     {
         try {
-            $ocorrencias = DB::connection('oracle')->select('select count(*) as qtd from bdc_registros_ocorrencias@dbl200 where tipo_registro = :codtipo', ['codtipo' => $codtipo]);
+            $ocorrencias = DB::connection('oracle')->select('select count(*) as qtd from bdc_registros_ocorrencias where tipo_registro = :codtipo', ['codtipo' => $codtipo]);
 
             if($ocorrencias[0]->qtd > 0){
                 $this->alert('error', 'Ocorrência não pode ser excluída, pois existem registros vinculados a ela!');
                 return;
             }
 
-            DB::connection('oracle')->delete('delete from bdc_registros_tipos@dbl200 where codtipo = :codtipo', ['codtipo' => $codtipo]);
+            DB::connection('oracle')->delete('delete from bdc_registros_tipos where codtipo = :codtipo', ['codtipo' => $codtipo]);
             $this->alert('success', 'Ocorrência excluída com sucesso!');
             $this->mount();
         } catch (\Exception $e) {
@@ -67,7 +67,7 @@ class Tipos extends Component
     public function editar()
     {
         try {
-            DB::connection('oracle')->update('update bdc_registros_tipos@dbl200 set descricao = upper(:descricao) where codtipo = :codtipo', ['descricao' => $this->descricao, 'codtipo' => $this->codtipo]);
+            DB::connection('oracle')->update('update bdc_registros_tipos set descricao = upper(:descricao) where codtipo = :codtipo', ['descricao' => $this->descricao, 'codtipo' => $this->codtipo]);
             $this->alert('success', 'Ocorrência editada com sucesso!');
             $this->mount();
             $this->dispatch('FecharModalEditar');
