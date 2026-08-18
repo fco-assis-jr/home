@@ -286,12 +286,20 @@ class Home extends Component
                 return;
             }
 
+            $codsugitensSalvos = [];
+
             foreach ($this->itens as $item) {
                 $valor_produto = str_replace(['R$ ', '.', ','], ['', '', '.'], $item['valor']);
+
+                // Gera o próximo id manualmente (em vez de usar NEXTVAL direto no insert) para
+                // sabermos exatamente quais itens foram gravados nesta gravação e imprimir só eles
+                $codsugitem = DB::connection('oracle')->selectOne('select bdc_sugestoes_seq.nextval as id from dual')->id;
+
                 DB::connection('oracle')->insert('INSERT INTO bdc_sugestoesi
                     (codsugitem, codsug, codauxiliar, descricao,  valor_produto, data_vencimento, quantidade, status, UNID, codfornec, codsec, codcategoria, codprod)
-                    VALUES (bdc_sugestoes_seq.NEXTVAL, ?, ?, ?, ?, TO_DATE(?, \'DD/MM/YYYY\'), ?, ?, ?, ?, ?, ?, ?)',
+                    VALUES (?, ?, ?, ?, ?, TO_DATE(?, \'DD/MM/YYYY\'), ?, ?, ?, ?, ?, ?, ?)',
                     [
+                        $codsugitem,
                         $idsug[0]->id,
                         $item['codigo'],
                         $item['nome'],
@@ -306,6 +314,8 @@ class Home extends Component
                         $item['codprod']
                     ]
                 );
+
+                $codsugitensSalvos[] = $codsugitem;
             }
             $this->toast('success', 'Itens salvos com sucesso!');
             $this->selectedFilial = 'false';
@@ -313,9 +323,13 @@ class Home extends Component
             $this->itens = [];
             $this->dispatch('formulario-limpo'); // Avisa o front-end para limpar o localStorage
 
-            // Abre o comprovante em PDF da requisição numa nova aba
+            // Abre o comprovante em PDF apenas com os itens desta gravação (mesmo que a requisição
+            // do dia já tivesse outros itens salvos anteriormente)
             $this->dispatch('abrir-nova-aba', [
-                'url' => route('sugestoes.comprovante', ['codsug' => $idsug[0]->id])
+                'url' => route('sugestoes.comprovante', [
+                    'codsug' => $idsug[0]->id,
+                    'itens' => implode(',', $codsugitensSalvos),
+                ])
             ]);
         } catch (Exception $e) {
             $this->toast('error', 'Erro ao salvar os itens no banco de dados!');
