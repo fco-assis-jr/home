@@ -9,7 +9,14 @@
     <div class="row justify-content-center">
         <div class="container mt-4" wire:ignore>
             <div class="tile">
-                <h3 class="tile-title">Tabela de Solicitações</h3>
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                    <h3 class="tile-title mb-0">Tabela de Solicitações</h3>
+                    <div class="d-flex gap-3 small text-muted text-uppercase">
+                        <span><i class="bi bi-circle-fill text-secondary"></i> Pendente</span>
+                        <span><i class="bi bi-circle-fill text-warning"></i> Em Andamento</span>
+                        <span><i class="bi bi-circle-fill text-success"></i> Concluído</span>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover" id="sampleTable">
                         <thead>
@@ -17,8 +24,8 @@
                             <th class="text-center">CODSUG</th>
                             <th class="text-center">FUNCIONÁRIO</th>
                             <th class="text-center">CODFILIAL</th>
-                            <th class="text-center">QT ITENS</th>
                             <th class="text-center">DATA CRIAÇÃO</th>
+                            <th class="text-center">ANDAMENTO</th>
                             <th class="text-center">AÇÕES</th>
                         </tr>
                         </thead>
@@ -28,8 +35,25 @@
                                 <td class="text-center">{{ $item->codsug }}</td>
                                 <td class="text-center">{{ $item->nome }}</td>
                                 <td class="text-center">{{ $item->codfilial }}</td>
-                                <td class="text-center">{{ $item->qtd_aguardando }}</td>
                                 <td class="text-center">{{ $item->data }}</td>
+                                <td class="text-center" style="min-width: 170px;">
+                                    <span class="badge bg-{{ $this->statusClass($item->perc_concluido) }} mb-1">
+                                        {{ $this->statusLabel($item->perc_concluido) }}
+                                    </span>
+                                    <div class="progress" style="height: 6px;">
+                                        <div
+                                            class="progress-bar bg-{{ $this->statusClass($item->perc_concluido) }}"
+                                            role="progressbar"
+                                            style="width: {{ $item->perc_concluido }}%"
+                                            aria-valuenow="{{ $item->perc_concluido }}"
+                                            aria-valuemin="0"
+                                            aria-valuemax="100"
+                                        ></div>
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ $item->qtd_avaliados }}/{{ $item->qtd_aguardando }} itens avaliados ({{ $item->perc_concluido }}%)
+                                    </small>
+                                </td>
                                 <td class="text-center">
                                     <a
                                         href="{{ route('sugestoes.comprovante', $item->codsug) }}"

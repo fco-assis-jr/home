@@ -43,7 +43,15 @@ class Solicitados extends Component
                              p.nome,
                              TO_CHAR(c.data, 'DD/MM/YYYY HH24:MI:SS') data,
                              c.codfilial,
-                             (select count(1) from bdc_sugestoesi i where i.codsug = c.codsug ) as qtd_aguardando
+                             (select count(1) from bdc_sugestoesi i where i.codsug = c.codsug ) as qtd_aguardando,
+                             (select count(1) from bdc_sugestoesi i where i.codsug = c.codsug and i.status = 1) as qtd_avaliados,
+                             CASE
+                                 WHEN (select count(1) from bdc_sugestoesi i where i.codsug = c.codsug) = 0 THEN 0
+                                 ELSE ROUND(
+                                     (select count(1) from bdc_sugestoesi i where i.codsug = c.codsug and i.status = 1) * 100
+                                     / (select count(1) from bdc_sugestoesi i where i.codsug = c.codsug)
+                                 )
+                             END as perc_concluido
                       FROM   bdc_sugestoesc c,
                              pcempr p
                      WHERE   p.matricula = c.codusuario
@@ -52,6 +60,34 @@ class Solicitados extends Component
             ['codusuario' => auth()->user()->matricula]
         );
         $this->itensc = $itens;
+    }
+
+    // Classe do badge/barra de progresso de acordo com o percentual de itens já avaliados
+    public function statusClass($percConcluido)
+    {
+        if ($percConcluido >= 100) {
+            return 'success';
+        }
+
+        if ($percConcluido > 0) {
+            return 'warning';
+        }
+
+        return 'secondary';
+    }
+
+    // Texto do status geral da requisição de acordo com o percentual de itens já avaliados
+    public function statusLabel($percConcluido)
+    {
+        if ($percConcluido >= 100) {
+            return 'Concluído';
+        }
+
+        if ($percConcluido > 0) {
+            return 'Em Andamento';
+        }
+
+        return 'Pendente';
     }
 
     public function modalOpen($index)
