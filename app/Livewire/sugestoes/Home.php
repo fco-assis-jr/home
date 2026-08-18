@@ -197,16 +197,59 @@ class Home extends Component
             'showConfirmButton' => true,
             'onCancel' => 'cancelDeletion',
             'onConfirmed' => 'confirmed',
-            'data' => ['index' => $index]
+            'data' => ['acao' => 'remover', 'index' => $index]
+        ]);
+    }
+
+    public function limparFormulario()
+    {
+        $this->alert('warning', 'Tem certeza que deseja limpar todo o formulário? Todos os itens ainda não salvos serão perdidos.', [
+            'toast' => true,
+            'timer' => 50000,
+            'position' => 'center',
+            'timerProgressBar' => true,
+            'showCancelButton' => true,
+            'showConfirmButton' => true,
+            'onCancel' => 'cancelDeletion',
+            'onConfirmed' => 'confirmed',
+            'data' => ['acao' => 'limpar']
         ]);
     }
 
     public function confirmed($data)
     {
+        $acao = $data['acao'] ?? 'remover';
+
+        if ($acao === 'limpar') {
+            $this->reset([
+                'codigo', 'nome', 'valor', 'quantidade', 'data', 'codfornec',
+                'codsecao', 'codcategoria', 'codprod', 'itens', 'indexEditando',
+                'codfilial', 'edit',
+            ]);
+            $this->selectedFilial = 'false';
+            $this->dispatch('formulario-limpo'); // Avisa o front-end para limpar o localStorage
+            $this->toast('success', 'Formulário limpo com sucesso!');
+            return;
+        }
+
         $index = $data['index'];
         unset($this->itens[$index]);
         $this->itens = array_values($this->itens);
         $this->toast('success', 'Item deletado com sucesso!');
+    }
+
+    // Restaura os itens salvos no localStorage do navegador (chamado pelo front-end ao carregar a página)
+    public function restaurarItens($itens, $codfilial = null, $selectedFilial = 'false')
+    {
+        if (is_array($itens) && !empty($itens)) {
+            $this->itens = $itens;
+        }
+
+        if (!empty($codfilial)) {
+            $this->codfilial = $codfilial;
+        }
+
+        $this->selectedFilial = $selectedFilial;
     }
 
     public function toast($type, $message)
@@ -268,6 +311,12 @@ class Home extends Component
             $this->selectedFilial = 'false';
             $this->codfilial = '';
             $this->itens = [];
+            $this->dispatch('formulario-limpo'); // Avisa o front-end para limpar o localStorage
+
+            // Abre o comprovante em PDF da requisição numa nova aba
+            $this->dispatch('abrir-nova-aba', [
+                'url' => route('sugestoes.comprovante', ['codsug' => $idsug[0]->id])
+            ]);
         } catch (Exception $e) {
             $this->toast('error', 'Erro ao salvar os itens no banco de dados!');
             return;

@@ -137,12 +137,21 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="flex justify-end gap-3 pt-3">
-                                <button class="btn btn-success" wire:click.prevent="salvarItens" id="span-loading"  onclick="spanLoadingHome();">Salvar Itens</button>
-                                <button class="btn btn-primary" type="button" disabled id="button-loading" style="display: none;">
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                    Enviando...
+                            <div class="d-flex justify-content-between align-items-center gap-3 pt-3">
+                                <button
+                                    class="btn btn-outline-danger"
+                                    type="button"
+                                    wire:click.prevent="limparFormulario"
+                                >
+                                    <i class="bi bi-eraser"></i> Limpar Formulário
                                 </button>
+                                <div class="d-flex gap-3">
+                                    <button class="btn btn-success" wire:click.prevent="salvarItens" id="span-loading"  onclick="spanLoadingHome();">Salvar Itens</button>
+                                    <button class="btn btn-primary" type="button" disabled id="button-loading" style="display: none;">
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Enviando...
+                                    </button>
+                                </div>
                             </div>
                         @endif
                     </div>
@@ -150,4 +159,48 @@
             </div>
         </div>
     </div>
+
+    @script
+    <script>
+        const STORAGE_KEY_ITENS = 'sugestoes_home_itens';
+        const STORAGE_KEY_FILIAL = 'sugestoes_home_codfilial';
+        const STORAGE_KEY_SELECTED_FILIAL = 'sugestoes_home_selected_filial';
+
+        function salvarNoStorage(chave, valor) {
+            try {
+                localStorage.setItem(chave, JSON.stringify(valor));
+            } catch (e) {
+                // Provavelmente storage cheio (quota excedida) — avisa o usuário sem travar o formulário
+                console.error('Não foi possível salvar o rascunho do formulário no navegador:', e);
+            }
+        }
+
+        // Sempre que a lista de itens (ou a filial selecionada) mudar no servidor,
+        // guarda uma cópia no localStorage do navegador
+        $wire.$watch('itens', (value) => salvarNoStorage(STORAGE_KEY_ITENS, value));
+        $wire.$watch('codfilial', (value) => salvarNoStorage(STORAGE_KEY_FILIAL, value));
+        $wire.$watch('selectedFilial', (value) => salvarNoStorage(STORAGE_KEY_SELECTED_FILIAL, value));
+
+        // Ao (re)abrir a página, recarrega o rascunho salvo, se existir
+        try {
+            const itensSalvos = JSON.parse(localStorage.getItem(STORAGE_KEY_ITENS) || 'null');
+            const filialSalva = JSON.parse(localStorage.getItem(STORAGE_KEY_FILIAL) || 'null');
+            const selectedFilialSalva = JSON.parse(localStorage.getItem(STORAGE_KEY_SELECTED_FILIAL) || '"false"');
+
+            if ((itensSalvos && itensSalvos.length > 0) || filialSalva) {
+                $wire.restaurarItens(itensSalvos || [], filialSalva, selectedFilialSalva || 'false');
+            }
+        } catch (e) {
+            console.error('Não foi possível restaurar o rascunho do formulário salvo no navegador:', e);
+        }
+
+        // Quando o formulário é limpo (botão "Limpar Formulário") ou os itens são salvos com sucesso,
+        // remove o rascunho do navegador
+        $wire.on('formulario-limpo', () => {
+            localStorage.removeItem(STORAGE_KEY_ITENS);
+            localStorage.removeItem(STORAGE_KEY_FILIAL);
+            localStorage.removeItem(STORAGE_KEY_SELECTED_FILIAL);
+        });
+    </script>
+    @endscript
 </div>
