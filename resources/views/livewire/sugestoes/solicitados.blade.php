@@ -7,9 +7,9 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="container mt-4" wire:ignore>
+        <div class="container mt-4">
             <div class="tile">
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
                     <h3 class="tile-title mb-0">Tabela de Solicitações</h3>
                     <div class="d-flex gap-3 small text-muted text-uppercase">
                         <span><i class="bi bi-circle-fill text-secondary"></i> Pendente</span>
@@ -17,8 +17,42 @@
                         <span><i class="bi bi-circle-fill text-success"></i> Concluído</span>
                     </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="sampleTable">
+
+                <form wire:submit.prevent="buscar" class="row gy-2 gx-3 align-items-end mb-3">
+                    <div class="col-auto">
+                        <label class="form-label small mb-0">Código Sugestão</label>
+                        <input
+                            type="number"
+                            class="form-control form-control-sm"
+                            wire:model="filtroCodsug"
+                            placeholder="Ex: 1234"
+                            style="width: 140px;"
+                        >
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label small mb-0">Período - De</label>
+                        <input type="date" class="form-control form-control-sm" wire:model="filtroDataInicio">
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label small mb-0">Até</label>
+                        <input type="date" class="form-control form-control-sm" wire:model="filtroDataFim">
+                    </div>
+                    <div class="col-auto d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <span wire:loading.remove wire:target="buscar"><i class="bi bi-search"></i> Filtrar</span>
+                            <span wire:loading wire:target="buscar">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Filtrando...
+                            </span>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" wire:click="limparFiltros">
+                            <i class="bi bi-x-circle"></i> Limpar
+                        </button>
+                    </div>
+                </form>
+
+                <div class="table-responsive" style="max-height: 55vh; overflow-y: auto;">
+                    <table class="table table-bordered table-hover">
                         <thead>
                         <tr class="text-uppercase text-center">
                             <th class="text-center">CODSUG</th>
@@ -30,8 +64,8 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach ($itensc as $index => $item)
-                            <tr class="text-uppercase text-center align-middle cursor-pointer" wire:click="modalOpen({{$item->codsug}})">
+                        @forelse ($itensc as $index => $item)
+                            <tr class="text-uppercase text-center align-middle cursor-pointer" wire:key="{{ $item->codsug }}" wire:click="modalOpen({{$item->codsug}})">
                                 <td class="text-center">{{ $item->codsug }}</td>
                                 <td class="text-center">{{ $item->nome }}</td>
                                 <td class="text-center">{{ $item->codfilial }}</td>
@@ -66,7 +100,13 @@
                                     </a>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox"></i> Nenhuma requisição encontrada com os filtros aplicados.
+                                </td>
+                            </tr>
+                        @endforelse
                         </tbody>
                     </table>
                 </div>

@@ -20,6 +20,11 @@ class Solicitados extends Component
     public $filial;
     public $data_criacao;
 
+    // Filtros da listagem
+    public $filtroCodsug;
+    public $filtroDataInicio;
+    public $filtroDataFim;
+
 
 
     public function mount()
@@ -37,9 +42,16 @@ class Solicitados extends Component
             $vali = false;
         }
 
+        // Por padrão, o filtro de período já abre com os últimos 7 dias
+        $this->filtroDataInicio = now()->subDays(7)->format('Y-m-d');
+        $this->filtroDataFim = now()->format('Y-m-d');
 
-        $itens = DB::connection('oracle')->select(
-            "SELECT  distinct c.codsug,
+        $this->buscar();
+    }
+
+    public function buscar()
+    {
+        $sql = "SELECT  distinct c.codsug,
                              p.nome,
                              TO_CHAR(c.data, 'DD/MM/YYYY HH24:MI:SS') data,
                              c.codfilial,
@@ -55,11 +67,34 @@ class Solicitados extends Component
                       FROM   bdc_sugestoesc c,
                              pcempr p
                      WHERE   p.matricula = c.codusuario
-                     and c.codusuario = :codusuario
-                     order by c.codsug desc ",
-            ['codusuario' => auth()->user()->matricula]
-        );
-        $this->itensc = $itens;
+                     and c.codusuario = :codusuario";
+
+        $bindings = ['codusuario' => auth()->user()->matricula];
+
+        if (!empty($this->filtroCodsug)) {
+            $sql .= " and c.codsug = :codsug";
+            $bindings['codsug'] = $this->filtroCodsug;
+        }
+
+        if (!empty($this->filtroDataInicio)) {
+            $sql .= " and TRUNC(c.data) >= TO_DATE(:data_inicio, 'YYYY-MM-DD')";
+            $bindings['data_inicio'] = $this->filtroDataInicio;
+        }
+
+        if (!empty($this->filtroDataFim)) {
+            $sql .= " and TRUNC(c.data) <= TO_DATE(:data_fim, 'YYYY-MM-DD')";
+            $bindings['data_fim'] = $this->filtroDataFim;
+        }
+
+        $sql .= " order by c.codsug desc";
+
+        $this->itensc = DB::connection('oracle')->select($sql, $bindings);
+    }
+
+    public function limparFiltros()
+    {
+        $this->reset(['filtroCodsug', 'filtroDataInicio', 'filtroDataFim']);
+        $this->buscar();
     }
 
     // Classe do badge/barra de progresso de acordo com o percentual de itens já avaliados
