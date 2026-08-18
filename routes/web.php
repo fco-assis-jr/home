@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Livewire\sugestoes\PDF\PDFController;
 use App\Livewire\sugestoes\PDF\PDFControllerRelatorio;
+use App\Livewire\sugestoes\PDF\PDFControllerComprovante;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/index', App\Livewire\Index::class)->name('index');
@@ -16,6 +17,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/relatorios', App\Livewire\sugestoes\Relatorios::class)->name('sugestoes.relatorios');
         Route::get('/visualizar-pdf', [PDFController::class, 'visualizarPDF'])->name('sugestoes.visualizar-pdf');
         Route::get('/visualizar-pdf-relatorio', [PDFControllerRelatorio::class, 'visualizarPDFrelatorio'])->name('sugestoes.visualizar-pdf-relatorio');
+        Route::get('/comprovante/{codsug}', [PDFControllerComprovante::class, 'visualizarComprovante'])->name('sugestoes.comprovante');
 
     });
     Route::prefix('ocorrencias')->namespace('App\Livewire\ocorrencias')->group(function () {

@@ -87,6 +87,7 @@ class Solicitados extends Component
                                  AND c.codsug = :codsug order by i.codsugitem", ['codsug' => $index]
             );
             $this->itensi = $produtos;
+            $this->codsug = $index;
             $this->nome = $produtos[0]->nome;
             $this->filial = $produtos[0]->codfilial;
             $this->data_criacao = $produtos[0]->data;

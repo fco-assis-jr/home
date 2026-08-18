@@ -19,6 +19,7 @@
                             <th class="text-center">CODFILIAL</th>
                             <th class="text-center">QT ITENS</th>
                             <th class="text-center">DATA CRIAÇÃO</th>
+                            <th class="text-center">AÇÕES</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -29,6 +30,17 @@
                                 <td class="text-center">{{ $item->codfilial }}</td>
                                 <td class="text-center">{{ $item->qtd_aguardando }}</td>
                                 <td class="text-center">{{ $item->data }}</td>
+                                <td class="text-center">
+                                    <a
+                                        href="{{ route('sugestoes.comprovante', $item->codsug) }}"
+                                        target="_blank"
+                                        class="btn btn-sm btn-outline-primary"
+                                        title="Imprimir comprovante"
+                                        onclick="event.stopPropagation()"
+                                    >
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>
@@ -91,6 +103,13 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <a
+                        href="{{ $codsug ? route('sugestoes.comprovante', $codsug) : '#' }}"
+                        target="_blank"
+                        class="btn btn-outline-primary"
+                    >
+                        <i class="bi bi-printer"></i> Imprimir Comprovante
+                    </a>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
             </div>
